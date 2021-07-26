@@ -55,7 +55,7 @@ export const Board: React.FC = () => {
         movements:[]
     })
 
-    function getColumnNumber(column: string) {
+    function getColumnNumber(column: string) : number {
         const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
         for(let i=0; i<columns.length; i++) {
             if(column === columns[i]) {
@@ -64,7 +64,7 @@ export const Board: React.FC = () => {
         }
         throw("") 
     }
-    function getColumnLetter(column: number)  {
+    function getColumnLetter(column: number) : string {
         const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
         return columns[column]
     }
@@ -73,60 +73,62 @@ export const Board: React.FC = () => {
         if(piece === null) return []
         if(piece.movement === null) return []
         let possibleMovements : Nullable<BoardPosition>[] = []
-        for(let i=0; i<piece.movement.moves.length ?? 0; i++) {
-            const move = piece.movement.moves[i]
-            const columnNumber = getColumnNumber(position.column) + move.h 
-            const row = piece.isBlack ? position.row + move.v : position.row - move.v
-            if(columnNumber < 8 || columnNumber >= 0) {
+        piece.movement.moves.forEach((i) => {
+            //forward
+            const columnNumber = getColumnNumber(position.column) + i.h 
+            const row = piece.isBlack ? position.row + i.v : position.row - i.v
+            if(columnNumber < 8 && columnNumber >= 0) {
                 const column = getColumnLetter(columnNumber)
-                if(columnNumber < 8 || columnNumber >= 0) {
-                    possibleMovements.push({column:  column, row: row})
+                if(row < 8 && row > 0) {
+                    const boardPosition = {column: column, row: row}
+                    const pieceInPosition = getPieceFromPosition(boardPosition)
+                    if(getPieceFromPosition(boardPosition) == null) {
+                        possibleMovements.push(boardPosition)
+                    } 
                 }
             }
             //consider diagonal
-            if(move.h > 0 && move.v > 0) {
-                const mirrorColumnNumber = columnNumber - (2 * move.h)
-                if(mirrorColumnNumber < 8 || mirrorColumnNumber >= 0) {
+            if(i.h > 0 && i.v > 0) {
+                const mirrorColumnNumber = columnNumber - (2 * i.h)
+                if(mirrorColumnNumber < 8 && mirrorColumnNumber >= 0) {
                     const mirrorColumn = getColumnLetter(mirrorColumnNumber)
-                    possibleMovements.push({column: mirrorColumn, row: row}) 
+                    if(row < 8 && row > 0) {
+                        const boardPosition = {column: mirrorColumn, row: row}
+                        if(getPieceFromPosition(boardPosition) == null) {
+                            possibleMovements.push(boardPosition) 
+                        }
+                    }
                 }
             }
-        }
-        for(let i=0; i<piece.movement.moves.length; i++) {
-            // Negative movements
-            if (piece.movement.onlyForward) break
-            const move = piece.movement.moves[i]
-            const columnNumberNegative = getColumnNumber(position.column) - move.h 
-            const rowNegative = position.row - move.v
-            if(columnNumberNegative < 8 || columnNumberNegative >= 0) {
-                const columnNegative = getColumnLetter(columnNumberNegative)
-                if(rowNegative < 8 || rowNegative >= 0) {
-                    possibleMovements.push({column:  columnNegative, row: rowNegative})
+            // backward movements
+            if (!piece!.movement!.onlyForward) {
+                const columnNumberNegative = getColumnNumber(position.column) - i.h 
+                const rowNegative = position.row - i.v
+                if(columnNumberNegative < 8 && columnNumberNegative >= 0) {
+                    const columnNegative = getColumnLetter(columnNumberNegative)
+                    if(rowNegative < 8 && rowNegative > 0) {
+                        const boardPosition = {column: columnNegative, row: rowNegative}
+                        if(getPieceFromPosition(boardPosition) == null) {
+                            possibleMovements.push(boardPosition)
+                        }
+                    }
+                }
+                //consider diagonal backward
+                if(i.h > 0 && i.v > 0) {
+                    const mirrorColumnNumber = columnNumberNegative + (2 * i.h)
+                    if(mirrorColumnNumber < 8 && mirrorColumnNumber >= 0) {
+                        const mirrorColumn = getColumnLetter(mirrorColumnNumber)
+                        const boardPosition = {column: mirrorColumn, row: rowNegative} 
+                        if(rowNegative < 8 && rowNegative > 0) {
+                            if(getPieceFromPosition(boardPosition) == null) {
+                                possibleMovements.push(boardPosition)
+                            }
+                        }
+                    }
                 }
             }
-            //consider diagonal
-            if(move.h > 0 && move.v > 0) {
-                const mirrorColumnNumber = columnNumberNegative + (2 * move.h)
-                if(mirrorColumnNumber < 8 || mirrorColumnNumber >= 0) {
-                    const mirrorColumn = getColumnLetter(mirrorColumnNumber)
-                    possibleMovements.push({column: mirrorColumn, row: rowNegative}) 
-                }
-            }
-        }
+        })
         return possibleMovements
-    }
-
-    function removeImpossibleMoves(piece: Nullable<Piece>, position: BoardPosition, moves: BoardPosition[]) : Nullable<BoardPosition>[] {
-        //forward
-        const movesToRemove : number[] = moves.map((i: Nullable<BoardPosition>) => {
-            if(getPieceFromPosition(i) !== null) {
-                return moves.indexOf(i)
-            }
-        }).filter((i) => typeof i === 'number')
-        movesToRemove.forEach((i) => moves[i] = null) 
-
-        const newMoves : BoardPosition[] = moves.filter((i) => i != null)
-        return newMoves
     }
 
     function movePiece(
@@ -152,6 +154,8 @@ export const Board: React.FC = () => {
         if(boardValues.selected === null) {
             if(piece !== null) {
                 newBoardValues.selected = position
+                const moves = getMovesForPiece(piece,position)
+                newBoardValues.movements = moves
                 setBoardValues(newBoardValues)
                 return
             }
@@ -165,8 +169,7 @@ export const Board: React.FC = () => {
                 newBoardValues.selected = position
                 //setMovements
                 const moves = getMovesForPiece(piece,position)
-                const newMoves = removeImpossibleMoves(piece,position,moves)
-                newBoardValues.movements = newMoves
+                newBoardValues.movements = moves
                 setBoardValues(newBoardValues)
                 return
             } else {
@@ -180,9 +183,14 @@ export const Board: React.FC = () => {
     }
 
     function getPieceFromPosition(position: Nullable<BoardPosition>) : Nullable<Piece> {
-        if(position === null) return null
-        const newBoard = boardValues.board
-        return newBoard[position.row - 1][getColumnNumber(position.column)]
+        if(position == null) return null
+        const newBoard: Nullable<Piece>[][] = {...boardValues.board}
+        const row: number = position.row - 1
+        const column : number = getColumnNumber(position.column)
+        console.log(`row: ${row} - column: ${column}`)
+        const boardPosition : Nullable<Piece> = newBoard[row][column]
+
+        return boardPosition    
     }
 
     useEffect(() => {
@@ -203,6 +211,10 @@ export const Board: React.FC = () => {
 
     function canKill() {
 
+    }
+
+    function resetBoard() {
+        setBoardValues({...boardValues, board:startBoard, selected: null, movements: []})
     }
 
 
@@ -251,7 +263,9 @@ export const Board: React.FC = () => {
             {renderRow(rowNumbers[7])}
         </div>
         <div>
-            <button style={styles.button}>RESET</button>
+            <button 
+            style={styles.button}
+            onClick={() => resetBoard()}>RESET</button>
         </div>
     </div>
     )
