@@ -73,6 +73,10 @@ export const Board: React.FC = () => {
         if(piece === null) return []
         if(piece.movement === null) return []
         let possibleMovements : Nullable<BoardPosition>[] = []
+        let blockForward = false
+        let blockForwardDiagonal = false
+        let blockBackward = false
+        let blockBackwardDiagonal = false
         piece.movement.moves.forEach((i) => {
             //forward
             const columnNumber = getColumnNumber(position.column) + i.h 
@@ -83,8 +87,10 @@ export const Board: React.FC = () => {
                     const boardPosition = {column: column, row: row}
                     const pieceInPosition = getPieceFromPosition(boardPosition)
                     if(getPieceFromPosition(boardPosition) == null) {
-                        possibleMovements.push(boardPosition)
-                    } 
+                        if(!blockForward) possibleMovements.push(boardPosition)
+                    } else {
+                        blockForward = true
+                    }
                 }
             }
             //consider diagonal
@@ -95,7 +101,9 @@ export const Board: React.FC = () => {
                     if(row < 8 && row > 0) {
                         const boardPosition = {column: mirrorColumn, row: row}
                         if(getPieceFromPosition(boardPosition) == null) {
-                            possibleMovements.push(boardPosition) 
+                            if(!blockForwardDiagonal) possibleMovements.push(boardPosition) 
+                        } else {
+                            blockForwardDiagonal = true
                         }
                     }
                 }
@@ -109,7 +117,9 @@ export const Board: React.FC = () => {
                     if(rowNegative < 8 && rowNegative > 0) {
                         const boardPosition = {column: columnNegative, row: rowNegative}
                         if(getPieceFromPosition(boardPosition) == null) {
-                            possibleMovements.push(boardPosition)
+                            if(!blockBackward) possibleMovements.push(boardPosition)
+                        } else {
+                            blockBackward = true
                         }
                     }
                 }
@@ -121,7 +131,9 @@ export const Board: React.FC = () => {
                         const boardPosition = {column: mirrorColumn, row: rowNegative} 
                         if(rowNegative < 8 && rowNegative > 0) {
                             if(getPieceFromPosition(boardPosition) == null) {
-                                possibleMovements.push(boardPosition)
+                                if(!blockBackwardDiagonal) possibleMovements.push(boardPosition)
+                            } else {
+                                blockBackwardDiagonal = true
                             }
                         }
                     }
