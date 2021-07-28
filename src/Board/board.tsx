@@ -73,6 +73,7 @@ export const Board: React.FC = () => {
         if(piece === null) return []
         if(piece.movement === null) return []
         let possibleMovements : Nullable<BoardPosition>[] = []
+        let killMovements : Nullable<BoardPosition>[] = []
         let blockForward = false
         let blockForwardDiagonal = false
         let blockBackward = false
@@ -83,13 +84,18 @@ export const Board: React.FC = () => {
             const row = piece.isBlack ? position.row + i.v : position.row - i.v
             if(columnNumber < 8 && columnNumber >= 0) {
                 const column = getColumnLetter(columnNumber)
-                if(row < 8 && row > 0) {
-                    const boardPosition = {column: column, row: row}
+                if (row <= 8 && row > 0) {
+                    const boardPosition = { column: column, row: row }
                     const pieceInPosition = getPieceFromPosition(boardPosition)
-                    if(getPieceFromPosition(boardPosition) == null) {
-                        if(!blockForward) possibleMovements.push(boardPosition)
+                    if (pieceInPosition == null) {
+                        if (!blockForward) possibleMovements.push(boardPosition)
                     } else {
-                        blockForward = true
+                        if (!blockForward) {
+                            blockForward = true
+                            if (pieceInPosition.isBlack !== piece.isBlack) {
+                                killMovements.push(boardPosition)
+                            }
+                        }
                     }
                 }
             }
@@ -98,12 +104,19 @@ export const Board: React.FC = () => {
                 const mirrorColumnNumber = columnNumber - (2 * i.h)
                 if(mirrorColumnNumber < 8 && mirrorColumnNumber >= 0) {
                     const mirrorColumn = getColumnLetter(mirrorColumnNumber)
-                    if(row < 8 && row > 0) {
+                    if(row <= 8 && row > 0) {
                         const boardPosition = {column: mirrorColumn, row: row}
-                        if(getPieceFromPosition(boardPosition) == null) {
+                        const pieceInPosition = getPieceFromPosition(boardPosition)
+                        if(pieceInPosition == null) {
                             if(!blockForwardDiagonal) possibleMovements.push(boardPosition) 
                         } else {
                             blockForwardDiagonal = true
+                            if(!blockForwardDiagonal){
+                                blockForwardDiagonal = true
+                                if (pieceInPosition.isBlack !== piece.isBlack) {
+                                    killMovements.push(boardPosition)
+                                }
+                            } 
                         }
                     }
                 }
@@ -114,12 +127,19 @@ export const Board: React.FC = () => {
                 const rowNegative = position.row - i.v
                 if(columnNumberNegative < 8 && columnNumberNegative >= 0) {
                     const columnNegative = getColumnLetter(columnNumberNegative)
-                    if(rowNegative < 8 && rowNegative > 0) {
+                    if(rowNegative <= 8 && rowNegative > 0) {
                         const boardPosition = {column: columnNegative, row: rowNegative}
-                        if(getPieceFromPosition(boardPosition) == null) {
+                        const pieceInPosition = getPieceFromPosition(boardPosition)
+                        if(pieceInPosition == null) {
                             if(!blockBackward) possibleMovements.push(boardPosition)
                         } else {
                             blockBackward = true
+                            if(!blockBackward){
+                                blockBackward = true
+                                if (pieceInPosition.isBlack !== piece.isBlack) {
+                                    killMovements.push(boardPosition)
+                                }
+                            } 
                         }
                     }
                 }
@@ -128,12 +148,19 @@ export const Board: React.FC = () => {
                     const mirrorColumnNumber = columnNumberNegative + (2 * i.h)
                     if(mirrorColumnNumber < 8 && mirrorColumnNumber >= 0) {
                         const mirrorColumn = getColumnLetter(mirrorColumnNumber)
-                        const boardPosition = {column: mirrorColumn, row: rowNegative} 
-                        if(rowNegative < 8 && rowNegative > 0) {
-                            if(getPieceFromPosition(boardPosition) == null) {
+                        if(rowNegative <= 8 && rowNegative > 0) {
+                            const boardPosition = {column: mirrorColumn, row: rowNegative} 
+                            const pieceInPosition = getPieceFromPosition(boardPosition)
+                            if(pieceInPosition == null) {
                                 if(!blockBackwardDiagonal) possibleMovements.push(boardPosition)
                             } else {
                                 blockBackwardDiagonal = true
+                                if(!blockBackwardDiagonal){
+                                    blockBackwardDiagonal = true
+                                    if (pieceInPosition.isBlack !== piece.isBlack) {
+                                        killMovements.push(boardPosition)
+                                    }
+                                } 
                             }
                         }
                     }
