@@ -5,10 +5,9 @@ export type Move = {
 }
 
 export type Movement = {
-    onlyForward: boolean
     canJump: boolean
     moves: Move[]
-    movesToKill: Move[]
+    movesToKill: Move[] | null
 }
 
 export abstract class Piece {
@@ -26,7 +25,6 @@ export class Pawn extends Piece {
     constructor(isBlack: boolean) {
         super(isBlack)
         this.movement = { 
-            onlyForward: true,
             canJump: false, 
             moves: [{v:1,h:0}],
             movesToKill: [{v:1,h:1}]
@@ -39,7 +37,6 @@ export class Hook extends Piece {
     constructor(isBlack: boolean) {
         super(isBlack)
         this.movement = { 
-            onlyForward: false,
             canJump: false, 
             moves: [
                 {v:1,h:0}, 
@@ -56,23 +53,22 @@ export class Hook extends Piece {
                 {v:0,h:5},
                 {v:0,h:6},
                 {v:0,h:7},
+                {v:-1,h:0}, 
+                {v:-2,h:0}, 
+                {v:-3,h:0},
+                {v:-4,h:0},
+                {v:-5,h:0},
+                {v:-6,h:0},
+                {v:-7,h:0},
+                {v:0,h:-1},
+                {v:0,h:-2},
+                {v:0,h:-3},
+                {v:0,h:-4},
+                {v:0,h:-5},
+                {v:0,h:-6},
+                {v:0,h:-7},
             ],
-            movesToKill: [
-                {v:1,h:0}, 
-                {v:2,h:0}, 
-                {v:3,h:0},
-                {v:4,h:0},
-                {v:5,h:0},
-                {v:6,h:0},
-                {v:7,h:0},
-                {v:0,h:1},
-                {v:0,h:2},
-                {v:0,h:3},
-                {v:0,h:4},
-                {v:0,h:5},
-                {v:0,h:6},
-                {v:0,h:7},
-            ]
+            movesToKill: null
          }
         this.image = 'H'
     }   
@@ -82,16 +78,18 @@ export class Knight extends Piece {
     constructor(isBlack: boolean) {
         super(isBlack)
         this.movement = { 
-            onlyForward: false,
             canJump: true, 
             moves: [
                 {v:1,h:2},
-                {v:2,h:1}
+                {v:2,h:1},
+                {v:-1,h:2},
+                {v:-2,h:1},
+                {v:-1,h:-2},
+                {v:-2,h:-1},
+                {v:1,h:-2},
+                {v:2,h:-1},
             ],
-            movesToKill: [
-                {v:1,h:2},
-                {v:2,h:1}
-            ]
+            movesToKill: null        
         }
         this.image = 'KN'
     }   
@@ -101,7 +99,6 @@ export class Bishop extends Piece {
     constructor(isBlack: boolean){
         super(isBlack)
         this.movement = { 
-            onlyForward: false,
             canJump: false, 
             moves: [
                 {v:1,h:1},
@@ -111,16 +108,29 @@ export class Bishop extends Piece {
                 {v:5,h:5},
                 {v:6,h:6},
                 {v:7,h:7},
+                {v:-1,h:1},
+                {v:-2,h:2},
+                {v:-3,h:3},
+                {v:-4,h:4},
+                {v:-5,h:5},
+                {v:-6,h:6},
+                {v:-7,h:7},
+                {v:-1,h:-1},
+                {v:-2,h:-2},
+                {v:-3,h:-3},
+                {v:-4,h:-4},
+                {v:-5,h:-5},
+                {v:-6,h:-6},
+                {v:-7,h:-7},
+                {v:1,h:-1},
+                {v:2,h:-2},
+                {v:3,h:-3},
+                {v:4,h:-4},
+                {v:5,h:-5},
+                {v:6,h:-6},
+                {v:7,h:-7},
             ],
-            movesToKill: [
-                {v:1,h:1},
-                {v:2,h:2},
-                {v:3,h:3},
-                {v:4,h:4},
-                {v:5,h:5},
-                {v:6,h:6},
-                {v:7,h:7},
-            ]
+            movesToKill: null
         }
         this.image = 'B'
     }
@@ -130,23 +140,9 @@ export class Queen extends Piece {
     constructor(isBlack: boolean){
         super(isBlack)
         this.movement = { 
-            onlyForward: false, 
             canJump: false,
             moves: [
-                {v:1,h:1},
-                {v:2,h:2},
-                {v:3,h:3},
-                {v:4,h:4},
-                {v:5,h:5},
-                {v:6,h:6},
-                {v:7,h:7},
-                {v:1,h:0}, 
-                {v:2,h:0}, 
-                {v:3,h:0},
-                {v:4,h:0},
-                {v:5,h:0},
-                {v:6,h:0},
-                {v:7,h:0},
+                //horizontal
                 {v:0,h:1},
                 {v:0,h:2},
                 {v:0,h:3},
@@ -154,30 +150,59 @@ export class Queen extends Piece {
                 {v:0,h:5},
                 {v:0,h:6},
                 {v:0,h:7},
+                {v:0,h:-1},
+                {v:0,h:-2},
+                {v:0,h:-3},
+                {v:0,h:-4},
+                {v:0,h:-5},
+                {v:0,h:-6},
+                {v:0,h:-7},
+                //vertical
+                {v:1,h:0}, 
+                {v:2,h:0}, 
+                {v:3,h:0},
+                {v:4,h:0},
+                {v:5,h:0},
+                {v:6,h:0},
+                {v:7,h:0},
+                {v:-1,h:0}, 
+                {v:-2,h:0}, 
+                {v:-3,h:0},
+                {v:-4,h:0},
+                {v:-5,h:0},
+                {v:-6,h:0},
+                {v:-7,h:0},
+                //diagonal
+                {v:1,h:1},
+                {v:2,h:2},
+                {v:3,h:3},
+                {v:4,h:4},
+                {v:5,h:5},
+                {v:6,h:6},
+                {v:7,h:7},
+                {v:-1,h:1},
+                {v:-2,h:2},
+                {v:-3,h:3},
+                {v:-4,h:4},
+                {v:-5,h:5},
+                {v:-6,h:6},
+                {v:-7,h:7},
+                {v:1,h:-1},
+                {v:2,h:-2},
+                {v:3,h:-3},
+                {v:4,h:-4},
+                {v:5,h:-5},
+                {v:6,h:-6},
+                {v:7,h:-7},
+                {v:-1,h:-1},
+                {v:-2,h:-2},
+                {v:-3,h:-3},
+                {v:-4,h:-4},
+                {v:-5,h:-5},
+                {v:-6,h:-6},
+                {v:-7,h:-7},
             ],
-            movesToKill: [
-                {v:1,h:1},
-                {v:2,h:2},
-                {v:3,h:3},
-                {v:4,h:4},
-                {v:5,h:5},
-                {v:6,h:6},
-                {v:7,h:7},
-                {v:1,h:0}, 
-                {v:2,h:0}, 
-                {v:3,h:0},
-                {v:4,h:0},
-                {v:5,h:0},
-                {v:6,h:0},
-                {v:7,h:0},
-                {v:0,h:1},
-                {v:0,h:2},
-                {v:0,h:3},
-                {v:0,h:4},
-                {v:0,h:5},
-                {v:0,h:6},
-                {v:0,h:7},
-            ]
+            movesToKill: null
         }
         this.image = 'Q'
     }
@@ -187,18 +212,18 @@ export class King extends Piece {
     constructor(isBlack: boolean){
         super(isBlack)
         this.movement = { 
-            onlyForward: false, 
             canJump: false,
             moves: [
                 {v:1,h:1},
                 {v:0,h:1},
                 {v:1,h:0},
+                {v:-1,h:-1},
+                {v:0,h:-1},
+                {v:-1,h:0},
+                {v:-1,h:1},
+                {v:1,h:-1},
             ],
-            movesToKill: [
-                {v:1,h:1},
-                {v:0,h:1},
-                {v:1,h:0},
-            ]
+            movesToKill: null 
         }
         this.image = 'K'
     }

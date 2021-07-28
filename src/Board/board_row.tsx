@@ -10,7 +10,7 @@ type BoardRowProps = {
     pieces: Nullable<Piece>[],
     selected: Nullable<BoardPosition>
     canMove: Nullable<BoardPosition>[] | null
-    canKill?: Nullable<BoardPosition>[] | null
+    canKill: Nullable<BoardPosition>[] | null
     isBlocked?: Nullable<BoardPosition>[]
     onSelected: (boardPosition: BoardPosition) => void
 }
@@ -19,7 +19,10 @@ export const BoardRow: React.FC<BoardRowProps> = ({ rowNumber, pieces, selected,
 
     const styles = {
         boardRow: {
-            display: 'flex'
+            display: 'flex',
+            width:'100%',
+            justifyContent: 'center',
+            alignItems: 'center'
         }
     }
 
@@ -27,24 +30,6 @@ export const BoardRow: React.FC<BoardRowProps> = ({ rowNumber, pieces, selected,
         onSelected(position)
     }
     
-    function isSquareBlocked(position: BoardPosition, positions: BoardPosition[]) {
-        for(let i = 0; i<positions.length; i++) {
-            if(positions[i] === position) {
-                return true
-            }
-        }
-        return false
-    }
-
-    function canKillInTheSquare(position: BoardPosition, positions: BoardPosition[]) {
-        for(let i = 0; i<positions.length; i++) {
-            if(positions[i] === position) {
-                return true
-            }
-        }
-        return false
-    }
-
     function canMoveToSquare(
         position: Nullable<BoardPosition>, 
         positions: Nullable<BoardPosition>[] | null
@@ -93,8 +78,7 @@ export const BoardRow: React.FC<BoardRowProps> = ({ rowNumber, pieces, selected,
             canMove= {canMoveToSquare(position, canMove)}
             //isBlocked= {isSquareBlocked(position, isBlocked)}
             isBlocked= {false}
-            //canKill= {canKillInTheSquare(position, canKill)}
-            canKill= {false}
+            canKill= {canMoveToSquare(position, canKill)}
             selected= {comparePositions(position, selected)}
             onSelected={(position: BoardPosition) =>  handleSelected(position)}
            />

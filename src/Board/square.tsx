@@ -17,10 +17,6 @@ type SquareProps = {
 export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKill, isBlocked, selected, onSelected }) => {
     const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
 
-    const [ move , setMove ] = useState<boolean>(canMove)
-
-    //useEffect(() => { if(canMove) alert(`canMove: ${position.column}${position.row}`)})
-
     function firstBlack(): boolean {
         for(let i = 0; i<columns.length; i++){
             if(position.column === columns[i]) {
@@ -46,13 +42,12 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
 
     const styles = {
         square: {
-            display: 'flex',
-            width: 80,
-            height: 80,
-            justifyContent: 'center',
-            alignItems: 'center',
-            backgroundColor: selected ? Colors.selected_green : canMove ? Colors.move_blue : isBlack() ? Colors.brown : Colors.light_brown,
+            width: '50vw',
+            height: '10vw',
+            paddingStart: '50%',
+            backgroundColor: selected ? Colors.selected_green : canMove ? Colors.move_blue : canKill ? Colors.red : isBlack() ? Colors.brown : Colors.light_brown,
             color: piece !== null ? piece.isBlack ? Colors.black : Colors.white : Colors.black,
+            fontSize: 30, 
             borderStyle: 'solid',
             borderWidth: 1,
             borderColor: Colors.white

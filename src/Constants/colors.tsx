@@ -4,5 +4,6 @@ export const Colors = {
     light_brown: '#FFD8B0',
     brown: '#C78D52',
     selected_green: '#6dbfa1',
-    move_blue: '#68abba'
+    move_blue: '#68abba',
+    red: '#c73434'
 }

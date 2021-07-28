@@ -10,6 +10,7 @@ import {
 } from '../Pieces/pieces'
 import { Colors } from '../Constants/colors'
 import { BoardRow } from './board_row'
+import { Move } from '../Pieces/pieces'
 
 export type Nullable<T> = (T|null)
 
@@ -21,7 +22,8 @@ export type BoardPosition = {
 type BoardValues = {
     board: Nullable<Piece>[][],
     selected: Nullable<BoardPosition>,
-    movements: Nullable<BoardPosition>[]
+    movements: Nullable<BoardPosition>[],
+    killMovements: Nullable<BoardPosition>[]
 } 
 /* The board has to have 64 piece in a square 8x8 */
 export const Board: React.FC = () => {
@@ -35,6 +37,12 @@ export const Board: React.FC = () => {
             borderRadius: 5,
             width: '50%',
             marginLeft: '25%'
+        },
+        board: {
+            display: 'block',
+            width: '90%',
+            marginLeft: '5%',
+            marginRight: '5%'
         }
     }
 
@@ -52,7 +60,8 @@ export const Board: React.FC = () => {
     const [ boardValues, setBoardValues ] = useState<BoardValues>({
         board:startBoard,
         selected:null,
-        movements:[]
+        movements:[],
+        killMovements: []
     })
 
     function getColumnNumber(column: string) : number {
@@ -64,110 +73,167 @@ export const Board: React.FC = () => {
         }
         throw("") 
     }
+
     function getColumnLetter(column: number) : string {
         const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
         return columns[column]
     }
 
-    function getMovesForPiece(piece: Nullable<Piece>, position: BoardPosition) : Nullable<BoardPosition>[]{
-        if(piece === null) return []
-        if(piece.movement === null) return []
+    function addDirectionalMove(
+        piece: Piece, 
+        position: BoardPosition, 
+        move: Move
+    ) : [ Nullable<BoardPosition>, Nullable<BoardPosition> ] {
+        const columnNumber = getColumnNumber(position.column) + move.h 
+        const row = piece.isBlack ? position.row + move.v : position.row - move.v
+        if(columnNumber < 8 && columnNumber >= 0) {
+            const column = getColumnLetter(columnNumber)
+            if (row <= 8 && row > 0) {
+                const boardPosition = { column: column, row: row }
+                const pieceInPosition = getPieceFromPosition(boardPosition)
+                if (pieceInPosition == null) {
+                    return [ boardPosition, null ]
+                } else {
+                    if (pieceInPosition.isBlack !== piece.isBlack) {
+                       return [ null, boardPosition ] 
+                    }
+                }
+            }
+        }
+        return [ null, null ]
+    }
+
+    function getMovesForPiece(
+        piece: Nullable<Piece>, 
+        position: BoardPosition
+    ) : [ Nullable<BoardPosition>[] , Nullable<BoardPosition>[] ]{
+        if(piece === null) return [[],[]]
+        if(piece.movement === null) return [[], []]
         let possibleMovements : Nullable<BoardPosition>[] = []
         let killMovements : Nullable<BoardPosition>[] = []
         let blockForward = false
-        let blockForwardDiagonal = false
         let blockBackward = false
-        let blockBackwardDiagonal = false
+        let blockLeft = false
+        let blockRight = false
+        let blockForwardLeftDiagonal = false
+        let blockForwardRightDiagonal = false
+        let blockBackwardLeftDiagonal = false
+        let blockBackwardRightDiagonal = false
         piece.movement.moves.forEach((i) => {
-            //forward
-            const columnNumber = getColumnNumber(position.column) + i.h 
-            const row = piece.isBlack ? position.row + i.v : position.row - i.v
-            if(columnNumber < 8 && columnNumber >= 0) {
-                const column = getColumnLetter(columnNumber)
-                if (row <= 8 && row > 0) {
-                    const boardPosition = { column: column, row: row }
-                    const pieceInPosition = getPieceFromPosition(boardPosition)
-                    if (pieceInPosition == null) {
-                        if (!blockForward) possibleMovements.push(boardPosition)
+            if(i.h > 0 && i.v === 0) {
+                //right movements
+                if(!blockRight) {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    if(movement[0] != null) {
+                        possibleMovements.push(movement[0])
+                    } else if (movement[1] != null) {
+                        killMovements.push(movement[1])
+                        blockRight = true
                     } else {
-                        if (!blockForward) {
-                            blockForward = true
-                            if (pieceInPosition.isBlack !== piece.isBlack) {
-                                killMovements.push(boardPosition)
-                            }
-                        }
+                        blockRight = true
                     }
                 }
             }
-            //consider diagonal
+            if(i.h < 0 && i.v === 0) {
+                //left movements
+                if(!blockLeft) {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    if(movement[0] != null) {
+                        possibleMovements.push(movement[0])
+                    } else if (movement[1] != null) {
+                        killMovements.push(movement[1])
+                        blockLeft = true
+                    } else {
+                        blockLeft = true
+                    }
+                }
+            }
+            if(i.h === 0 && i.v > 0) {
+                //forward movements
+                if(!blockForward) {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    if(movement[0] != null) {
+                        possibleMovements.push(movement[0])
+                    } else if (movement[1] != null) {
+                        killMovements.push(movement[1])
+                        blockForward = true
+                    } else {
+                        blockForward = true
+                    }
+                }
+            }
+            if(i.h === 0 && i.v < 0) {
+                //backward movements
+                if(!blockBackward) {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    if(movement[0] != null) {
+                        possibleMovements.push(movement[0])
+                    } else if (movement[1] != null) {
+                        killMovements.push(movement[1])
+                        blockBackward = true
+                    } else {
+                        blockBackward = true
+                    }
+                }
+            }
+            if(i.h > 0 && i.v < 0) {
+                //left backward
+                if(piece.movement?.canJump || !blockBackwardRightDiagonal) {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    if(movement[0] != null) {
+                        possibleMovements.push(movement[0])
+                    } else if (movement[1] != null) {
+                        killMovements.push(movement[1])
+                        blockBackwardRightDiagonal = true
+                    } else {
+                        blockBackwardRightDiagonal = true
+                    }
+                }
+            }
+            if(i.h < 0 && i.v < 0) {
+                //right backward
+                if(piece.movement?.canJump || !blockBackwardLeftDiagonal) {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    if(movement[0] != null) {
+                        possibleMovements.push(movement[0])
+                    } else if (movement[1] != null) {
+                        killMovements.push(movement[1])
+                        blockBackwardLeftDiagonal = true
+                    } else {
+                        blockBackwardLeftDiagonal = true
+                    }
+                }
+            }
             if(i.h > 0 && i.v > 0) {
-                const mirrorColumnNumber = columnNumber - (2 * i.h)
-                if(mirrorColumnNumber < 8 && mirrorColumnNumber >= 0) {
-                    const mirrorColumn = getColumnLetter(mirrorColumnNumber)
-                    if(row <= 8 && row > 0) {
-                        const boardPosition = {column: mirrorColumn, row: row}
-                        const pieceInPosition = getPieceFromPosition(boardPosition)
-                        if(pieceInPosition == null) {
-                            if(!blockForwardDiagonal) possibleMovements.push(boardPosition) 
-                        } else {
-                            blockForwardDiagonal = true
-                            if(!blockForwardDiagonal){
-                                blockForwardDiagonal = true
-                                if (pieceInPosition.isBlack !== piece.isBlack) {
-                                    killMovements.push(boardPosition)
-                                }
-                            } 
-                        }
+                //right forward
+                if(piece.movement?.canJump || !blockForwardRightDiagonal) {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    if(movement[0] != null) {
+                        possibleMovements.push(movement[0])
+                    } else if (movement[1] != null) {
+                        killMovements.push(movement[1])
+                        blockForwardRightDiagonal = true
+                    } else {
+                        blockForwardRightDiagonal = true
                     }
                 }
             }
-            // backward movements
-            if (!piece!.movement!.onlyForward) {
-                const columnNumberNegative = getColumnNumber(position.column) - i.h 
-                const rowNegative = position.row - i.v
-                if(columnNumberNegative < 8 && columnNumberNegative >= 0) {
-                    const columnNegative = getColumnLetter(columnNumberNegative)
-                    if(rowNegative <= 8 && rowNegative > 0) {
-                        const boardPosition = {column: columnNegative, row: rowNegative}
-                        const pieceInPosition = getPieceFromPosition(boardPosition)
-                        if(pieceInPosition == null) {
-                            if(!blockBackward) possibleMovements.push(boardPosition)
-                        } else {
-                            blockBackward = true
-                            if(!blockBackward){
-                                blockBackward = true
-                                if (pieceInPosition.isBlack !== piece.isBlack) {
-                                    killMovements.push(boardPosition)
-                                }
-                            } 
-                        }
-                    }
-                }
-                //consider diagonal backward
-                if(i.h > 0 && i.v > 0) {
-                    const mirrorColumnNumber = columnNumberNegative + (2 * i.h)
-                    if(mirrorColumnNumber < 8 && mirrorColumnNumber >= 0) {
-                        const mirrorColumn = getColumnLetter(mirrorColumnNumber)
-                        if(rowNegative <= 8 && rowNegative > 0) {
-                            const boardPosition = {column: mirrorColumn, row: rowNegative} 
-                            const pieceInPosition = getPieceFromPosition(boardPosition)
-                            if(pieceInPosition == null) {
-                                if(!blockBackwardDiagonal) possibleMovements.push(boardPosition)
-                            } else {
-                                blockBackwardDiagonal = true
-                                if(!blockBackwardDiagonal){
-                                    blockBackwardDiagonal = true
-                                    if (pieceInPosition.isBlack !== piece.isBlack) {
-                                        killMovements.push(boardPosition)
-                                    }
-                                } 
-                            }
-                        }
+            if(i.h < 0 && i.v > 0) {
+                //left forward
+                if(piece.movement?.canJump || !blockForwardLeftDiagonal) {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    if(movement[0] != null) {
+                        possibleMovements.push(movement[0])
+                    } else if (movement[1] != null) {
+                        killMovements.push(movement[1])
+                        blockForwardLeftDiagonal = true
+                    } else {
+                        blockForwardLeftDiagonal = true
                     }
                 }
             }
         })
-        return possibleMovements
+        return [ possibleMovements, killMovements ]
     }
 
     function movePiece(
@@ -194,7 +260,8 @@ export const Board: React.FC = () => {
             if(piece !== null) {
                 newBoardValues.selected = position
                 const moves = getMovesForPiece(piece,position)
-                newBoardValues.movements = moves
+                newBoardValues.movements = moves[0]
+                newBoardValues.killMovements = moves[1]
                 setBoardValues(newBoardValues)
                 return
             }
@@ -208,7 +275,8 @@ export const Board: React.FC = () => {
                 newBoardValues.selected = position
                 //setMovements
                 const moves = getMovesForPiece(piece,position)
-                newBoardValues.movements = moves
+                newBoardValues.movements = moves[0]
+                newBoardValues.killMovements = moves[1]
                 setBoardValues(newBoardValues)
                 return
             } else {
@@ -248,10 +316,6 @@ export const Board: React.FC = () => {
         }
     }
 
-    function canKill() {
-
-    }
-
     function resetBoard() {
         setBoardValues({...boardValues, board:startBoard, selected: null, movements: []})
     }
@@ -279,7 +343,7 @@ export const Board: React.FC = () => {
                 pieces={boardValues.board[rowNumber-1]}
                 selected={boardValues.selected}
                 canMove={boardValues.movements}
-                //canKill={canKill()}
+                canKill={boardValues.killMovements}
                 //isBlocked= {isBlocked()}
                 onSelected={(boardPosition: BoardPosition) => handleSelected(boardPosition)}
             />
@@ -290,8 +354,8 @@ export const Board: React.FC = () => {
     const rowNumbers = [ 8, 7, 6, 5, 4, 3, 2, 1 ]
 
     return(
-    <div>
-        <div className="board">
+    <div style={{ display: 'inline-block', width: '100%'}}>
+        <div className="board" style={styles.board}>
             {renderRow(rowNumbers[0])}
             {renderRow(rowNumbers[1])}
             {renderRow(rowNumbers[2])}
