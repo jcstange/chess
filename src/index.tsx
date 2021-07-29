@@ -1,4 +1,4 @@
-import React, { useState }from 'react'
+import React from 'react'
 import ReactDOM from 'react-dom'
 import { Board } from './Board/board'
 

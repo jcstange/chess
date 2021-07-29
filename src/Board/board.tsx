@@ -71,6 +71,7 @@ export const Board: React.FC = () => {
                 return  i
             }
         }
+        // eslint-disable-next-line no-throw-literal
         throw("") 
     }
 

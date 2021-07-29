@@ -3,7 +3,6 @@ import React from 'react'
 import { Piece } from '../Pieces/pieces'
 import { Nullable, BoardPosition } from './board'
 import { Square } from './square'
-import { Colors } from '../Constants/colors'
 
 type BoardRowProps = {
     rowNumber: number,
