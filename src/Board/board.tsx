@@ -271,16 +271,30 @@ export const Board: React.FC = () => {
                 return
             }
             //selected other
-            if(piece !== null) { //kill or select new
-                newBoardValues.selected = position
-                //setMovements
-                const moves = getMovesForPiece(piece,position)
-                newBoardValues.movements = moves[0]
-                newBoardValues.killMovements = moves[1]
-                setBoardValues(newBoardValues)
-                return
+            if(piece !== null) { 
+                if(piece.isBlack === selectedPiece?.isBlack) {
+                    //selected new piece
+                    newBoardValues.selected = position
+                    //setMovements
+                    const moves = getMovesForPiece(piece,position)
+                    newBoardValues.movements = moves[0]
+                    newBoardValues.killMovements = moves[1]
+                    setBoardValues(newBoardValues)
+                    return
+                } else {
+                    const selected = newBoardValues!.selected!
+                    newBoardValues.board[selected.row - 1][getColumnNumber(selected.column)] = null
+                    newBoardValues.selected = null
+                    newBoardValues.board[position.row - 1][getColumnNumber(position.column)] = selectedPiece
+                    newBoardValues.movements = []
+                    newBoardValues.killMovements = []
+                    setBoardValues(newBoardValues)
+                    return
+                    // TODO: Cemetery.push[piece]
+                    
+                }
             } else {
-                // there is a selected piece, but user selected a movement square
+                // there is a selected piece, and user selected a movement square
                 canMove(selectedPiece, position)
             }
         }
@@ -324,17 +338,6 @@ export const Board: React.FC = () => {
     function renderRow(
         rowNumber: number 
     ) {
-        /*
-        console.log('renderRow ',  rowNumber)
-        let invertedBoard: Nullable<Piece>[][] = []
-        for(let i = 7; i>=0; i--) {
-            console.log(7-i)
-            invertedBoard[7-i] = []
-            for(let j=0; i<=7; j++) {
-                invertedBoard[7 - i].push(startBoard[i][j])
-            }
-        }
-        */
         return (
         <div style={{display: 'flex'}}>
             <div style={{alignSelf: 'center'}}>{rowNumber}</div>
@@ -344,7 +347,6 @@ export const Board: React.FC = () => {
                 selected={boardValues.selected}
                 canMove={boardValues.movements}
                 canKill={boardValues.killMovements}
-                //isBlocked= {isBlocked()}
                 onSelected={(boardPosition: BoardPosition) => handleSelected(boardPosition)}
             />
         </div>
