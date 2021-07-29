@@ -319,9 +319,6 @@ export const Board: React.FC = () => {
                 canMove(selectedPiece, position)
             }
         }
-
-        //isKill?
-
     }
 
     function getPieceFromPosition(position: Nullable<BoardPosition>) : Nullable<Piece> {
