@@ -271,7 +271,13 @@ export const Board: React.FC = () => {
         board[positionA.row - 1][columnA] = null
         console.log(`newPosition: ${positionB.column}${positionB.row}`)
         board[positionB.row - 1][columnB] = piece
-        setBoardValues({...boardValues, board: board, selected: null, movements: [], isBlackTurn: !boardValues.isBlackTurn})
+        setBoardValues({...boardValues, 
+            board: board, 
+            selected: null, 
+            movements: [], 
+            killMovements: [],
+            isBlackTurn: !boardValues.isBlackTurn
+        })
     }
 
     function handleSelected(position: BoardPosition) {
