@@ -1,0 +1,45 @@
+# This is a basic workflow to help you get started with Actions
+
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the develop branch
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    env:
+      secrets: ${{ secrets.ACCESS_TOKEN }}
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      - name: Build web
+        run: |
+          yarn install
+          yarn react-scripts build
+      - name: Publish it gh-pages
+        run: |
+          cd build
+          git init .
+          git config --global user.email jcstange@gmail.com
+          git config --global user.name jcstange
+          git status
+          git remote add origin https://${{secrets.ACCESS_TOKEN}}@github.com/jcstange/chess.git
+          git checkout -b gh-pages
+          git add --all
+          git commit -m "gh-pages-update"
+          git push origin gh-pages -f
