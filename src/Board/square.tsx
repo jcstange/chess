@@ -44,10 +44,7 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
         square: {
             width: '50vw',
             height: '10vw',
-            alignItems: 'center',
             backgroundColor: selected ? Colors.selected_green : canMove ? Colors.move_blue : canKill ? Colors.red : isBlack() ? Colors.brown : Colors.light_brown,
-            color: piece !== null ? piece.isBlack ? Colors.black : Colors.white : Colors.black,
-            fontSize: 30, 
             borderStyle: 'solid',
             borderWidth: 1,
             borderColor: Colors.white
@@ -59,13 +56,15 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
       onClick={() => selectPiece()}
       >
           <div style={{ 
-              backgroundColor: '#FFFF00', 
+              position: 'relative',
+              top: '50%',
+              left: '50%',
+              margin: 0,
               textAlign: 'center',
-              alignSelf: 'center', 
-              alignContent: 'center', 
-              justifyContent: 'center'
+              color: piece !== null ? piece.isBlack ? Colors.black : Colors.white : Colors.black,
+              fontSize: 30, 
+              transform: 'translate(-50%,-50%)'
             }}>
-
                 {piece?.image ?? ""}
           </div>
     </div>
