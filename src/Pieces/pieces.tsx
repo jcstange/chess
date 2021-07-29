@@ -6,6 +6,7 @@ export type Move = {
 
 export type Movement = {
     canJump: boolean
+    firstMove: Move[] | null
     moves: Move[]
     movesToKill: Move[] | null
 }
@@ -26,8 +27,15 @@ export class Pawn extends Piece {
         super(isBlack)
         this.movement = { 
             canJump: false, 
+            firstMove: [ 
+                {v:1,h:0},
+                {v:2,h:0} 
+            ],
             moves: [{v:1,h:0}],
-            movesToKill: [{v:1,h:1}]
+            movesToKill: [
+                {v:1,h:1},
+                {v:1,h:-1}
+            ]
          }
         this.image = 'P'
     }   
@@ -38,6 +46,7 @@ export class Hook extends Piece {
         super(isBlack)
         this.movement = { 
             canJump: false, 
+            firstMove: null, 
             moves: [
                 {v:1,h:0}, 
                 {v:2,h:0}, 
@@ -79,6 +88,7 @@ export class Knight extends Piece {
         super(isBlack)
         this.movement = { 
             canJump: true, 
+            firstMove: null, 
             moves: [
                 {v:1,h:2},
                 {v:2,h:1},
@@ -100,6 +110,7 @@ export class Bishop extends Piece {
         super(isBlack)
         this.movement = { 
             canJump: false, 
+            firstMove: null, 
             moves: [
                 {v:1,h:1},
                 {v:2,h:2},
@@ -141,6 +152,7 @@ export class Queen extends Piece {
         super(isBlack)
         this.movement = { 
             canJump: false,
+            firstMove: null, 
             moves: [
                 //horizontal
                 {v:0,h:1},
@@ -213,6 +225,7 @@ export class King extends Piece {
         super(isBlack)
         this.movement = { 
             canJump: false,
+            firstMove: null, 
             moves: [
                 {v:1,h:1},
                 {v:0,h:1},

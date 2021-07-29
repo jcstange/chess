@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState} from 'react'
+import React from 'react'
 import { Piece } from '../Pieces/pieces'
 import { Colors } from '../Constants/colors'
 import { Nullable, BoardPosition }from './board'

@@ -119,6 +119,26 @@ export const Board: React.FC = () => {
         let blockForwardRightDiagonal = false
         let blockBackwardLeftDiagonal = false
         let blockBackwardRightDiagonal = false
+        //handle pawn movements
+        if(piece instanceof Pawn) {
+            if(piece.movement.firstMove !== null) {
+                piece.movement.firstMove.forEach((i) => {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    possibleMovements.push(movement[0])
+                    piece.movement!.firstMove = null
+                })
+            } else {
+                piece.movement.moves.forEach((i) => {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    possibleMovements.push(movement[0])
+                })
+            }
+            piece.movement.movesToKill?.forEach((i) => {
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    killMovements.push(movement[1])
+            })
+            return [ possibleMovements, killMovements ]
+        } 
         piece.movement.moves.forEach((i) => {
             if(i.h > 0 && i.v === 0) {
                 //right movements
