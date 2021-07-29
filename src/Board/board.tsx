@@ -23,7 +23,8 @@ type BoardValues = {
     board: Nullable<Piece>[][],
     selected: Nullable<BoardPosition>,
     movements: Nullable<BoardPosition>[],
-    killMovements: Nullable<BoardPosition>[]
+    killMovements: Nullable<BoardPosition>[],
+    isBlackTurn: boolean
 } 
 /* The board has to have 64 piece in a square 8x8 */
 export const Board: React.FC = () => {
@@ -61,7 +62,8 @@ export const Board: React.FC = () => {
         board:startBoard,
         selected:null,
         movements:[],
-        killMovements: []
+        killMovements: [],
+        isBlackTurn: false
     })
 
     function getColumnNumber(column: string) : number {
@@ -269,7 +271,7 @@ export const Board: React.FC = () => {
         board[positionA.row - 1][columnA] = null
         console.log(`newPosition: ${positionB.column}${positionB.row}`)
         board[positionB.row - 1][columnB] = piece
-        setBoardValues({...boardValues, board: board, selected: null, movements: []})
+        setBoardValues({...boardValues, board: board, selected: null, movements: [], isBlackTurn: !boardValues.isBlackTurn})
     }
 
     function handleSelected(position: BoardPosition) {
@@ -277,14 +279,17 @@ export const Board: React.FC = () => {
         //isSelected?
         const selectedPiece = getPieceFromPosition(newBoardValues.selected)
         const piece = getPieceFromPosition(position)
+    
         if(boardValues.selected === null) {
             if(piece !== null) {
-                newBoardValues.selected = position
-                const moves = getMovesForPiece(piece,position)
-                newBoardValues.movements = moves[0]
-                newBoardValues.killMovements = moves[1]
-                setBoardValues(newBoardValues)
-                return
+                if(piece.isBlack === newBoardValues.isBlackTurn) {
+                    newBoardValues.selected = position
+                    const moves = getMovesForPiece(piece,position)
+                    newBoardValues.movements = moves[0]
+                    newBoardValues.killMovements = moves[1]
+                    setBoardValues(newBoardValues)
+                    return
+                }
             }
         } else {
             //selected same 
@@ -303,16 +308,19 @@ export const Board: React.FC = () => {
                     setBoardValues(newBoardValues)
                     return
                 } else {
-                    const selected = newBoardValues!.selected!
-                    newBoardValues.board[selected.row - 1][getColumnNumber(selected.column)] = null
-                    newBoardValues.selected = null
-                    newBoardValues.board[position.row - 1][getColumnNumber(position.column)] = selectedPiece
-                    newBoardValues.movements = []
-                    newBoardValues.killMovements = []
-                    setBoardValues(newBoardValues)
-                    return
-                    // TODO: Cemetery.push[piece]
-                    
+                    const isKillMove: boolean = newBoardValues.killMovements.filter((i) => i?.column === position.column && i.row === position.row).length > 0
+                    if(isKillMove) {
+                        const selected = newBoardValues!.selected!
+                        newBoardValues.board[selected.row - 1][getColumnNumber(selected.column)] = null
+                        newBoardValues.selected = null
+                        newBoardValues.board[position.row - 1][getColumnNumber(position.column)] = selectedPiece
+                        newBoardValues.movements = []
+                        newBoardValues.killMovements = []
+                        newBoardValues.isBlackTurn = !boardValues.isBlackTurn
+                        setBoardValues(newBoardValues)
+                        return
+                        // TODO: Cemetery.push[piece]
+                    }
                 }
             } else {
                 // there is a selected piece, and user selected a movement square
