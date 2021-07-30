@@ -9,12 +9,12 @@ type SquareProps = {
     piece: Nullable<Piece>,
     canMove: boolean,
     canKill: boolean,
-    isBlocked: boolean,
     selected: boolean,
+    inCheck: boolean,
     onSelected: (boardPosition:BoardPosition) => void
 }
 
-export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKill, isBlocked, selected, onSelected }) => {
+export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKill, selected, inCheck, onSelected }) => {
     const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
 
     function firstBlack(): boolean {
@@ -44,7 +44,7 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
         square: {
             width: '50vw',
             height: '10vw',
-            backgroundColor: selected ? Colors.selected_green : canMove ? Colors.move_blue : canKill ? Colors.red : isBlack() ? Colors.brown : Colors.light_brown,
+            backgroundColor: selected ? Colors.selected_green : inCheck ? Colors.red : canMove ? Colors.move_blue : canKill ? Colors.red : isBlack() ? Colors.brown : Colors.light_brown,
             borderStyle: 'solid',
             borderWidth: 1,
             borderColor: Colors.white

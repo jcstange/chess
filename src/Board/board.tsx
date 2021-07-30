@@ -25,6 +25,8 @@ type BoardValues = {
     movements: Nullable<BoardPosition>[],
     killMovements: Nullable<BoardPosition>[],
     isBlackTurn: boolean
+    check: Nullable<[ BoardPosition, BoardPosition ]>,
+    endGame: boolean
 } 
 /* The board has to have 64 piece in a square 8x8 */
 export const Board: React.FC = () => {
@@ -63,7 +65,9 @@ export const Board: React.FC = () => {
         selected:null,
         movements:[],
         killMovements: [],
-        isBlackTurn: false
+        isBlackTurn: false,
+        check: null,
+        endGame: false
     })
 
     function getColumnNumber(column: string) : number {
@@ -104,6 +108,30 @@ export const Board: React.FC = () => {
             }
         }
         return [ null, null ]
+    }
+
+    function getCheck(isBlack: boolean): Nullable<[BoardPosition,BoardPosition]> {
+        const board = boardValues.board
+        let piecePositions = []
+        for(let i=0; i<board.length; i++) {
+            const row = 7 - i
+            for(let j=0; j<board.length; j++) {
+                if (board[i][j] !== null && board[i][j]?.isBlack === isBlack){
+                    piecePositions.push({column: getColumnLetter(j), row: row + 1})
+                }
+            }
+        }
+        piecePositions.forEach((i) => {
+            const piece = getPieceFromPosition(i)
+            const moves = getMovesForPiece(piece, i)
+            moves[1].forEach((j) => {
+                const killPiece = getPieceFromPosition(j)
+                if(killPiece instanceof King) {
+                    return [i , j]
+                }
+            })
+        }) 
+        return null
     }
 
     function getMovesForPiece(
@@ -271,12 +299,34 @@ export const Board: React.FC = () => {
         board[positionA.row - 1][columnA] = null
         console.log(`newPosition: ${positionB.column}${positionB.row}`)
         board[positionB.row - 1][columnB] = piece
+        // does check still exist
+        console.log(`check: ${boardValues.check !== null}`)
+        if(boardValues.check !== null) {
+            const checkPiece = getPieceFromPosition(boardValues.check[0])
+            if(checkPiece !== null) {
+                getMovesForPiece(checkPiece, boardValues.check[0])[1].forEach((i) => {
+                    const killPiece = getPieceFromPosition(i)
+                    if(killPiece instanceof King) {
+                        boardValues.endGame = true
+                    }
+                })
+                if(boardValues.endGame === false) boardValues.check = null
+            }
+        }
+
+        boardValues.check = getCheck(boardValues.isBlackTurn)
+        console.log(`check confirmation: ${boardValues.check !== null}`)
+        
+
         setBoardValues({...boardValues, 
             board: board, 
             selected: null, 
             movements: [], 
             killMovements: [],
-            isBlackTurn: !boardValues.isBlackTurn
+            check: boardValues.check,
+            endGame: boardValues.endGame,
+            isBlackTurn: !boardValues.isBlackTurn,
+
         })
     }
 
@@ -311,6 +361,13 @@ export const Board: React.FC = () => {
                     const moves = getMovesForPiece(piece,position)
                     newBoardValues.movements = moves[0]
                     newBoardValues.killMovements = moves[1]
+                    moves[1].forEach((i) => {
+                        const killPiece = getPieceFromPosition(i)
+                        if(killPiece instanceof King) {
+                            newBoardValues.check = [ position, i! ]
+                        }
+                    })
+
                     setBoardValues(newBoardValues)
                     return
                 } else {
@@ -322,6 +379,7 @@ export const Board: React.FC = () => {
                         newBoardValues.board[position.row - 1][getColumnNumber(position.column)] = selectedPiece
                         newBoardValues.movements = []
                         newBoardValues.killMovements = []
+                        newBoardValues.check = getCheck(newBoardValues.isBlackTurn)
                         newBoardValues.isBlackTurn = !boardValues.isBlackTurn
                         setBoardValues(newBoardValues)
                         return
@@ -363,7 +421,15 @@ export const Board: React.FC = () => {
     }
 
     function resetBoard() {
-        setBoardValues({...boardValues, board:startBoard, selected: null, movements: []})
+        setBoardValues({...boardValues, 
+            board:startBoard, 
+            selected: null, 
+            movements: [], 
+            killMovements: [], 
+            check: null,
+            isBlackTurn: false,
+            endGame: false
+        })
     }
 
 
@@ -379,6 +445,7 @@ export const Board: React.FC = () => {
                 selected={boardValues.selected}
                 canMove={boardValues.movements}
                 canKill={boardValues.killMovements}
+                check={boardValues.check}
                 onSelected={(boardPosition: BoardPosition) => handleSelected(boardPosition)}
             />
         </div>
