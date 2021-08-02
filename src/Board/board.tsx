@@ -118,7 +118,6 @@ export const Board: React.FC = () => {
         console.log(`board.length: ${board.length}`)
         console.log(`board.type: ${typeof board[0].length}`)
         for(let i=0; i<8; i++) {
-            const row = board[i]
             for(let j=0; j<8; j++) {
                 const piece = board[i][j]
                 if (piece !== null){
