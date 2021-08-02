@@ -14,7 +14,15 @@ type BoardRowProps = {
     onSelected: (boardPosition: BoardPosition) => void
 }
 
-export const BoardRow: React.FC<BoardRowProps> = ({ rowNumber, pieces, selected, canMove, canKill, check, onSelected }) => {
+export const BoardRow: React.FC<BoardRowProps> = ({ 
+    rowNumber, 
+    pieces, 
+    selected, 
+    canMove, 
+    canKill, 
+    check, 
+    onSelected
+}) => {
 
     const styles = {
         boardRow: {
@@ -68,7 +76,7 @@ export const BoardRow: React.FC<BoardRowProps> = ({ rowNumber, pieces, selected,
 
         if (columnNumber == null) return
 
-        const position = { column: column, row: rowNumber} as BoardPosition
+        const position = {column: column, row: rowNumber} as BoardPosition
 
         return (
         <Square 

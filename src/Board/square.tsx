@@ -40,6 +40,19 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
         onSelected(position)
     }
 
+    function getImage(src: string | null | undefined) {
+        if (src === null || src === undefined) return ""
+        if (src.length > 2) {
+            var image = require('../Images/' + src)
+            return (<img style={{
+                filter: piece?.isBlack ? 'null' : 'invert(100%)'
+            }} src={image.default}/>)
+        } else {
+            return src
+        }
+
+    }
+
     const styles = {
         square: {
             width: '50vw',
@@ -65,7 +78,7 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
               fontSize: 30, 
               transform: 'translate(-50%,-50%)'
             }}>
-                {piece?.image ?? ""}
+                {getImage(piece?.image)}
           </div>
     </div>
     )
