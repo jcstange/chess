@@ -45,6 +45,9 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
         if (src.length > 2) {
             var image = require('../Images/' + src)
             return (<img style={{
+                display: 'block',
+                width: '50%',
+                marginLeft: '25%',
                 filter: piece?.isBlack ? 'null' : 'invert(100%)'
             }} src={image.default} alt=""/>)
         } else {
