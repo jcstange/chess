@@ -37,7 +37,7 @@ export class Pawn extends Piece {
                 {v:1,h:-1}
             ]
          }
-        this.image = 'P'
+        this.image = "pawn.png"
     }   
 }
 

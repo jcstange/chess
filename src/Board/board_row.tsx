@@ -10,11 +10,19 @@ type BoardRowProps = {
     selected: Nullable<BoardPosition>
     canMove: Nullable<BoardPosition>[] | null
     canKill: Nullable<BoardPosition>[] | null
-    isBlocked?: Nullable<BoardPosition>[]
+    check: Nullable<[BoardPosition, BoardPosition]>
     onSelected: (boardPosition: BoardPosition) => void
 }
 
-export const BoardRow: React.FC<BoardRowProps> = ({ rowNumber, pieces, selected, canMove, canKill, isBlocked, onSelected }) => {
+export const BoardRow: React.FC<BoardRowProps> = ({ 
+    rowNumber, 
+    pieces, 
+    selected, 
+    canMove, 
+    canKill, 
+    check, 
+    onSelected
+}) => {
 
     const styles = {
         boardRow: {
@@ -68,17 +76,16 @@ export const BoardRow: React.FC<BoardRowProps> = ({ rowNumber, pieces, selected,
 
         if (columnNumber == null) return
 
-        const position = { column: column, row: rowNumber} as BoardPosition
+        const position = {column: column, row: rowNumber} as BoardPosition
 
         return (
         <Square 
             position={position}  
             piece={pieces ? pieces[columnNumber] : null}
             canMove= {canMoveToSquare(position, canMove)}
-            //isBlocked= {isSquareBlocked(position, isBlocked)}
-            isBlocked= {false}
             canKill= {canMoveToSquare(position, canKill)}
             selected= {comparePositions(position, selected)}
+            inCheck= {comparePositions(position, check ? check[1] : null)}
             onSelected={(position: BoardPosition) =>  handleSelected(position)}
            />
         )
