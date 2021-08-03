@@ -17,15 +17,15 @@ type SquareProps = {
 export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKill, selected, inCheck, onSelected }) => {
     const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
 
+    /*
+     * Check  
+     */
     function firstBlack(): boolean {
-        for(let i = 0; i<columns.length; i++){
-            if(position.column === columns[i]) {
-                if(i % 2) return true 
-                else return false
-            } 
-        }
-        return true
+        const index = columns.findIndex((i) => i === position.column)
+        if(index % 2) return true 
+        else return false
     }
+
     function isBlack(): boolean {
         if(firstBlack()) {
             if(position.row % 2) return false

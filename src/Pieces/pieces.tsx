@@ -79,7 +79,7 @@ export class Hook extends Piece {
             ],
             movesToKill: null
          }
-        this.image = 'H'
+        this.image = 'hook.png'
     }   
 }
 
@@ -101,7 +101,7 @@ export class Knight extends Piece {
             ],
             movesToKill: null        
         }
-        this.image = 'KN'
+        this.image = 'knight.png'
     }   
 }
 
@@ -143,7 +143,7 @@ export class Bishop extends Piece {
             ],
             movesToKill: null
         }
-        this.image = 'B'
+        this.image = 'bishop.png'
     }
 }
 
@@ -216,7 +216,7 @@ export class Queen extends Piece {
             ],
             movesToKill: null
         }
-        this.image = 'Q'
+        this.image = 'queen.png'
     }
 }
 
@@ -238,7 +238,7 @@ export class King extends Piece {
             ],
             movesToKill: null 
         }
-        this.image = 'K'
+        this.image = 'king.png'
     }
 
 }

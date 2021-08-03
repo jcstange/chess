@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
     Piece, 
     Pawn,
@@ -110,13 +110,12 @@ export const Board: React.FC = () => {
         return [ null, null ]
     }
 
-    function getCheck(board: Nullable<Piece>[][]): Nullable<[BoardPosition,BoardPosition]> {
+    function getCheck(
+        board: Nullable<Piece>[][]
+    ): Nullable<[BoardPosition,BoardPosition]> {
         let piecePositions = []
         var check : Nullable<[BoardPosition,BoardPosition]> = null
 
-        console.table(board)
-        console.log(`board.length: ${board.length}`)
-        console.log(`board.type: ${typeof board[0].length}`)
         for(let i=0; i<8; i++) {
             for(let j=0; j<8; j++) {
                 const piece = board[i][j]
@@ -128,18 +127,15 @@ export const Board: React.FC = () => {
                 }
             }
         }
-        console.table(piecePositions)
-        
+
+        console.table(board)
+
         piecePositions.forEach((i: BoardPosition) => {
             const piece = getPieceFromPosition(i)
-            console.log(`piece: ${typeof piece} -> piecePosition: ${i.column}${i.row}`)
             const moves = getMovesForPiece(piece, i)
-            console.log(`killMovements: ${moves[1].length}`)
             moves[1].forEach((j) => {
-                console.log(`killMovement: ${j?.column}${j?.row}`)
                 const killPiece = getPieceFromPosition(j)
                 if(killPiece instanceof King) {
-                    console.log("CHECK")
                     check = [i , j!]
                 }
             })
@@ -270,7 +266,7 @@ export const Board: React.FC = () => {
             if(i.h > 0 && i.v > 0) {
                 //right forward
                 if(piece.movement?.canJump || !blockForwardRightDiagonal) {
-                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ] = addDirectionalMove(piece, position, i) 
                     if(movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {
@@ -284,7 +280,7 @@ export const Board: React.FC = () => {
             if(i.h < 0 && i.v > 0) {
                 //left forward
                 if(piece.movement?.canJump || !blockForwardLeftDiagonal) {
-                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ]= addDirectionalMove(piece, position, i) 
+                    const movement : [ Nullable<BoardPosition>, Nullable<BoardPosition> ] = addDirectionalMove(piece, position, i) 
                     if(movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {
@@ -307,13 +303,16 @@ export const Board: React.FC = () => {
         const columnA = getColumnNumber(positionA.column)
         const columnB = getColumnNumber(positionB.column)
         const piece = board[positionA.row - 1][columnA]
+    
         board[positionA.row - 1][columnA] = null
+
+        // remove first move from the pawn        
         if(piece !== null && piece.movement !== null && piece instanceof Pawn) {
             piece.movement.firstMove = null 
         }
         board[positionB.row - 1][columnB] = piece
+
         // does check still exist
-        console.log(`check: ${boardValues.check !== null}`)
         if(boardValues.check !== null) {
             const checkPiece = getPieceFromPosition(boardValues.check[0])
             if(checkPiece !== null) {
@@ -327,10 +326,7 @@ export const Board: React.FC = () => {
             }
         }
 
-
         boardValues.check = getCheck(board)
-        console.log(`check confirmation: ${boardValues.check !== null}`)
-        
 
         setBoardValues({...boardValues, 
             board: board, 
@@ -346,10 +342,10 @@ export const Board: React.FC = () => {
 
     function handleSelected(position: BoardPosition) {
         const newBoardValues = {...boardValues}
-        //isSelected?
         const selectedPiece = getPieceFromPosition(newBoardValues.selected)
         const piece = getPieceFromPosition(position)
     
+        //isSelected?
         if(boardValues.selected === null) {
             if(piece !== null) {
                 if(piece.isBlack === newBoardValues.isBlackTurn) {
@@ -361,11 +357,14 @@ export const Board: React.FC = () => {
                     return
                 }
             }
+
         } else {
+
             //selected same 
             if(boardValues.selected.row === position.row && boardValues.selected.column === position.column) {
                 return
             }
+
             //selected other
             if(piece !== null) { 
                 if(piece.isBlack === selectedPiece?.isBlack) {
@@ -381,24 +380,13 @@ export const Board: React.FC = () => {
                             newBoardValues.check = [ position, i! ]
                         }
                     })
-
                     setBoardValues(newBoardValues)
                     return
                 } else {
-                    const isKillMove: boolean = newBoardValues.killMovements.filter((i) => 
-                        i?.column === position.column && i.row === position.row).length > 0
-                    if(isKillMove) {
-                        const selected = newBoardValues!.selected!
-                        newBoardValues.board[selected.row - 1][getColumnNumber(selected.column)] = null
-                        newBoardValues.selected = null
-                        newBoardValues.board[position.row - 1][getColumnNumber(position.column)] = selectedPiece
-                        newBoardValues.movements = []
-                        newBoardValues.killMovements = []
-                        newBoardValues.check = getCheck(newBoardValues.board)
-                        newBoardValues.isBlackTurn = !boardValues.isBlackTurn
-                        setBoardValues(newBoardValues)
+
+                    // if it is a kill move
+                    if(killMove(newBoardValues, position)) {
                         return
-                        // TODO: Cemetery.push[piece]
                     }
                 }
             } else {
@@ -406,6 +394,29 @@ export const Board: React.FC = () => {
                 canMove(selectedPiece, position)
             }
         }
+    }
+
+    function killMove(
+        newBoardValues: BoardValues, 
+        position: BoardPosition
+    ) {
+        const selectedPiece = getPieceFromPosition(newBoardValues.selected)
+        const isKillMove: boolean = newBoardValues.killMovements.filter((i) => 
+            i?.column === position.column && i.row === position.row).length > 0
+        if(isKillMove) {
+            const selected = boardValues!.selected!
+            newBoardValues.board[selected.row - 1][getColumnNumber(selected.column)] = null
+            newBoardValues.selected = null
+            newBoardValues.board[position.row - 1][getColumnNumber(position.column)] = selectedPiece
+            newBoardValues.movements = []
+            newBoardValues.killMovements = []
+            newBoardValues.check = getCheck(newBoardValues.board)
+            newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
+            setBoardValues(newBoardValues)
+            return true
+        }
+        return false
+
     }
 
     function getPieceFromPosition(position: Nullable<BoardPosition>) : Nullable<Piece> {
@@ -418,12 +429,10 @@ export const Board: React.FC = () => {
         return boardPosition    
     }
 
-    useEffect(() => {
-        //console.table(boardValues.board)
-        if(boardValues.selected === null) return 
-    })
-
-    function canMove(piece: Nullable<Piece>, position: Nullable<BoardPosition>) {
+    function canMove(
+        piece: Nullable<Piece>, 
+        position: Nullable<BoardPosition>
+    ) {
         if(boardValues.movements === null) return
         const movementMatch = boardValues.movements.filter((i) => {
             if(i?.column !== null && i?.row !== null) {
@@ -486,7 +495,7 @@ export const Board: React.FC = () => {
         <div>
             <button 
             style={styles.button}
-            onClick={() => resetBoard()}>RESET</button>
+            onClick={() => resetBoard()}>RESTART GAME</button>
         </div>
     </div>
     )
