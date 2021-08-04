@@ -18,7 +18,7 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
     const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
 
     /*
-     * Check  
+     * Check if column starts with black square  
      */
     function firstBlack(): boolean {
         const index = columns.findIndex((i) => i === position.column)
@@ -26,6 +26,9 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
         else return false
     }
 
+    /*
+    * Check is this square is a black square
+    */
     function isBlack(): boolean {
         if(firstBlack()) {
             if(position.row % 2) return false
@@ -42,13 +45,14 @@ export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKil
 
     function getImage(src: string | null | undefined) {
         if (src === null || src === undefined) return ""
+        console.log(`piece on ${position.column}${position.row} is ${piece?.isBlack ? "black" : "white"}`)
         if (src.length > 2) {
             var image = require('../Images/' + src)
             return (<img style={{
                 display: 'block',
                 width: '50%',
                 marginLeft: '25%',
-                filter: piece?.isBlack ? 'null' : 'invert(100%)'
+                filter: piece?.isBlack ? 'none' : 'invert(100%)'
             }} src={image.default} alt=""/>)
         } else {
             return src

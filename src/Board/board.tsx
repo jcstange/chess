@@ -116,6 +116,7 @@ export const Board: React.FC = () => {
         let piecePositions = []
         var check : Nullable<[BoardPosition,BoardPosition]> = null
 
+        // get piece positions
         for(let i=0; i<8; i++) {
             for(let j=0; j<8; j++) {
                 const piece = board[i][j]
@@ -130,6 +131,7 @@ export const Board: React.FC = () => {
 
         console.table(board)
 
+        // search for kill movements
         piecePositions.forEach((i: BoardPosition) => {
             const piece = getPieceFromPosition(i)
             const moves = getMovesForPiece(piece, i)
@@ -361,7 +363,8 @@ export const Board: React.FC = () => {
         } else {
 
             //selected same 
-            if(boardValues.selected.row === position.row && boardValues.selected.column === position.column) {
+            if(boardValues.selected.row === position.row 
+                && boardValues.selected.column === position.column) {
                 return
             }
 
@@ -404,7 +407,7 @@ export const Board: React.FC = () => {
         const isKillMove: boolean = newBoardValues.killMovements.filter((i) => 
             i?.column === position.column && i.row === position.row).length > 0
         if(isKillMove) {
-            const selected = boardValues!.selected!
+            const selected = newBoardValues!.selected!
             newBoardValues.board[selected.row - 1][getColumnNumber(selected.column)] = null
             newBoardValues.selected = null
             newBoardValues.board[position.row - 1][getColumnNumber(position.column)] = selectedPiece
@@ -412,7 +415,14 @@ export const Board: React.FC = () => {
             newBoardValues.killMovements = []
             newBoardValues.check = getCheck(newBoardValues.board)
             newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
-            setBoardValues(newBoardValues)
+            setBoardValues({...boardValues,
+                board: newBoardValues.board,
+                selected: newBoardValues.selected,
+                movements: newBoardValues.movements,
+                killMovements: newBoardValues.killMovements,
+                check: newBoardValues.check,
+                isBlackTurn: newBoardValues.isBlackTurn
+            })
             return true
         }
         return false

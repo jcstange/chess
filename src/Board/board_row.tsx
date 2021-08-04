@@ -67,12 +67,8 @@ export const BoardRow: React.FC<BoardRowProps> = ({
 
     function renderSquare(column: string) {
         const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
-        let columnNumber: number | null = null
-        for(let i=0; i<columns.length; i++) {
-            if(column === columns[i]) {
-                columnNumber = i
-            }
-        }
+        
+        let columnNumber: number | null = columns.findIndex((i) => i === column)
 
         if (columnNumber == null) return
 
