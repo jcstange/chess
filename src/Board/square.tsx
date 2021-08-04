@@ -14,7 +14,15 @@ type SquareProps = {
     onSelected: (boardPosition:BoardPosition) => void
 }
 
-export const Square: React.FC<SquareProps> = ({ position, piece, canMove, canKill, selected, inCheck, onSelected }) => {
+export const Square: React.FC<SquareProps> = ({ 
+    position, 
+    piece, 
+    canMove, 
+    canKill, 
+    selected, 
+    inCheck, 
+    onSelected 
+}) => {
     const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
 
     /*

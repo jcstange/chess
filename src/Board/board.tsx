@@ -11,6 +11,7 @@ import {
 import { Colors } from '../Constants/colors'
 import { BoardRow } from './board_row'
 import { Move } from '../Pieces/pieces'
+import { Cemetery } from './cemetery'
 
 export type Nullable<T> = (T|null)
 
@@ -26,6 +27,7 @@ type BoardValues = {
     killMovements: Nullable<BoardPosition>[],
     isBlackTurn: boolean
     check: Nullable<[ BoardPosition, BoardPosition ]>,
+    cemetery: Piece[],
     endGame: boolean
 } 
 /* The board has to have 64 piece in a square 8x8 */
@@ -67,6 +69,7 @@ export const Board: React.FC = () => {
         killMovements: [],
         isBlackTurn: false,
         check: null,
+        cemetery: [],
         endGame: false
     })
 
@@ -408,8 +411,13 @@ export const Board: React.FC = () => {
             i?.column === position.column && i.row === position.row).length > 0
         if(isKillMove) {
             const selected = newBoardValues!.selected!
+            // add to cemetery
+            newBoardValues.cemetery.push(newBoardValues.board[position.row - 1]![getColumnNumber(position.column)]!)
+            // delete piece
             newBoardValues.board[selected.row - 1][getColumnNumber(selected.column)] = null
+            // remove selected piece 
             newBoardValues.selected = null
+            // move piece to killed piece position 
             newBoardValues.board[position.row - 1][getColumnNumber(position.column)] = selectedPiece
             newBoardValues.movements = []
             newBoardValues.killMovements = []
@@ -421,6 +429,7 @@ export const Board: React.FC = () => {
                 movements: newBoardValues.movements,
                 killMovements: newBoardValues.killMovements,
                 check: newBoardValues.check,
+                cemetery: newBoardValues.cemetery,
                 isBlackTurn: newBoardValues.isBlackTurn
             })
             return true
@@ -464,6 +473,7 @@ export const Board: React.FC = () => {
             killMovements: [], 
             check: null,
             isBlackTurn: false,
+            cemetery: [],
             endGame: false
         })
     }
@@ -506,6 +516,9 @@ export const Board: React.FC = () => {
             <button 
             style={styles.button}
             onClick={() => resetBoard()}>RESTART GAME</button>
+        </div>
+        <div>
+            <Cemetery cemetery={boardValues.cemetery} />
         </div>
     </div>
     )
