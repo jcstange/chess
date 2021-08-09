@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import {
     Piece, 
     Pawn,
-    Hook,
+    Rook,
     Knight,
     Bishop,
     Queen,
@@ -55,14 +55,14 @@ export const Board: React.FC = () => {
     }
 
     const startBoard : Nullable<Piece>[][] = [
-        [ new Hook(false) , new Knight(false), new Bishop(false), new Queen(false), new King(false), new Bishop(false), new Knight(false), new Hook(false) ],
+        [ new Rook(false) , new Knight(false), new Bishop(false), new Queen(false), new King(false), new Bishop(false), new Knight(false), new Rook(false) ],
         [ new Pawn(false) , new Pawn(false)  , new Pawn(false)  , new Pawn(false) , new Pawn(false), new Pawn(false)  , new Pawn(false)  , new Pawn(false) ],
         [ null           , null        , null        , null       , null      , null        , null        , null       ],
         [ null           , null        , null        , null       , null      , null        , null        , null       ],
         [ null           , null        , null        , null       , null      , null        , null        , null       ],
         [ null           , null        , null        , null       , null      , null        , null        , null       ],
         [ new Pawn(true) , new Pawn(true)  , new Pawn(true)  , new Pawn(true) , new Pawn(true), new Pawn(true)  , new Pawn(true)  , new Pawn(true) ],
-        [ new Hook(true) , new Knight(true), new Bishop(true), new Queen(true), new King(true), new Bishop(true), new Knight(true), new Hook(true) ],
+        [ new Rook(true) , new Knight(true), new Bishop(true), new Queen(true), new King(true), new Bishop(true), new Knight(true), new Rook(true) ],
     ]
 
     const [ boardValues, setBoardValues ] = useState<BoardValues>({
@@ -185,6 +185,12 @@ export const Board: React.FC = () => {
                     if(movement[1] !== null) killMovements.push(movement[1])
             })
             return [ possibleMovements, killMovements ]
+        }
+        if(piece instanceof King){
+            let castle = canCastle(piece,position)
+            if(castle !== null) {
+                possibleMovements.push(castle)
+            }
         } 
         piece.movement.moves.forEach((i) => {
             if(i.h > 0 && i.v === 0) {
@@ -466,6 +472,36 @@ export const Board: React.FC = () => {
         if(movementMatch.length > 0) {
             movePiece(boardValues!.selected!, position!)
         }
+    }
+
+    function canCastle(
+        king: Piece, 
+        kingPosition: BoardPosition
+    ): Nullable<BoardPosition> {
+        const board = boardValues.board
+        if(king.movement !== null && king.movement.firstMove !== null) {
+           /* 
+           1st: king and rook may not been moved
+           2nd: all spaces between rook and king must be empty
+           3rd: king cannot be in check
+           4th: the squares that the king passes over must not be under attack 
+           */
+           // horizontally finding rook     
+           const horizontalMovements =  Array.from({length: 4}).map((value, key) => key)
+           horizontalMovements.forEach((i) => {
+               const column = getColumnNumber(kingPosition.column)
+               const nextColumn = king.isBlack ? column - i : column + i
+               const nextColumnLetter = getColumnLetter(nextColumn) 
+               const boardPosition = {column: nextColumn, row: kingPosition.row}   
+               const piece = getPieceFromPosition(boardPosition)
+               if(!!piece) {
+                   if(!(piece instanceof Rook)) return null
+                   if(piece.movement?.firstMove === null) return null
+                   // rook and king didn't move and there are no pieces between them
+
+               }
+           })
+        } else return null
     }
 
     function resetBoard() {
