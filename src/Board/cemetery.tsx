@@ -10,7 +10,7 @@ export const Cemetery: React.FC<CemeteryProps> = ({ cemetery }) => {
     function makeList() {
         return cemetery.map((i) => {
             var image = require('../Images/' + i.image)
-            return (<li>
+            return (
                 <div style={{ backgroundColor: i?.isBlack ? Colors.white : Colors.black }}>
                     <img style={{
                         display: 'block',
@@ -19,7 +19,7 @@ export const Cemetery: React.FC<CemeteryProps> = ({ cemetery }) => {
                         filter: i?.isBlack ? 'none' : 'invert(100%)'
                     }} src={image.default} alt=""/>
                 </div>
-            </li>)
+            )
         })
     }
     return (<div style={{display: 'flex'}}>{makeList()}</div>)

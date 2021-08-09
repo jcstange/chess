@@ -48,6 +48,9 @@ export const Board: React.FC = () => {
             width: '90%',
             marginLeft: '5%',
             marginRight: '5%'
+        },
+        cemetery: {
+            marginTop: 30
         }
     }
 
@@ -517,7 +520,7 @@ export const Board: React.FC = () => {
             style={styles.button}
             onClick={() => resetBoard()}>RESTART GAME</button>
         </div>
-        <div>
+        <div style={styles.cemetery}>
             <Cemetery cemetery={boardValues.cemetery} />
         </div>
     </div>
