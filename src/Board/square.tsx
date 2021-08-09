@@ -70,7 +70,7 @@ export const Square: React.FC<SquareProps> = ({
 
     const styles = {
         square: {
-            width: '50vw',
+            width: '10vw',
             height: '10vw',
             backgroundColor: selected ? Colors.selected_green : inCheck ? Colors.red : canMove ? Colors.move_blue : canKill ? Colors.red : isBlack() ? Colors.brown : Colors.light_brown,
             borderStyle: 'solid',

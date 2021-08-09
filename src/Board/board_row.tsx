@@ -30,6 +30,9 @@ export const BoardRow: React.FC<BoardRowProps> = ({
             width:'100%',
             justifyContent: 'center',
             alignItems: 'center'
+        },
+        wrapper: {
+            display: 'block'
         }
     }
 
@@ -74,16 +77,35 @@ export const BoardRow: React.FC<BoardRowProps> = ({
 
         const position = {column: column, row: rowNumber} as BoardPosition
 
+        if (rowNumber === 8) {
+            return (
+                <div style={styles.wrapper}>
+                    <div style={{textAlign: 'center'}}>{column}</div>
+                    <Square 
+                        position={position}  
+                        piece={pieces ? pieces[columnNumber] : null}
+                        canMove= {canMoveToSquare(position, canMove)}
+                        canKill= {canMoveToSquare(position, canKill)}
+                        selected= {comparePositions(position, selected)}
+                        inCheck= {comparePositions(position, check ? check[1] : null)}
+                        onSelected={(position: BoardPosition) =>  handleSelected(position)}
+                    />
+
+                </div>
+            )
+        }
         return (
-        <Square 
-            position={position}  
-            piece={pieces ? pieces[columnNumber] : null}
-            canMove= {canMoveToSquare(position, canMove)}
-            canKill= {canMoveToSquare(position, canKill)}
-            selected= {comparePositions(position, selected)}
-            inCheck= {comparePositions(position, check ? check[1] : null)}
-            onSelected={(position: BoardPosition) =>  handleSelected(position)}
-           />
+        <div style={styles.wrapper}>
+            <Square 
+                position={position}  
+                piece={pieces ? pieces[columnNumber] : null}
+                canMove= {canMoveToSquare(position, canMove)}
+                canKill= {canMoveToSquare(position, canKill)}
+                selected= {comparePositions(position, selected)}
+                inCheck= {comparePositions(position, check ? check[1] : null)}
+                onSelected={(position: BoardPosition) =>  handleSelected(position)}
+            />
+        </div>
         )
     }
 
