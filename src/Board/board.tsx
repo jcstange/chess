@@ -355,33 +355,48 @@ export const Board: React.FC = () => {
         })
     }
 
-    function castle(rookPosition: BoardPosition) {
-        const rooks = [ 
+    function castle(kingPosition: BoardPosition, rookPosition: BoardPosition) {
+        const rooks : BoardPosition[] = [ 
             {column: 'A', row: 1}, 
             {column: 'H', row: 1}, 
             {column: 'A', row: 8}, 
             {column: 'H', row: 8} 
         ]
-        const newKingPositions = [
+        const newKingPositions : BoardPosition[] = [
             {column: 'C', row: 1},
             {column: 'F', row: 1},
             {column: 'C', row: 8},
             {column: 'F', row: 8},
         ]
-        const newRookPositions = [
-            {column: 'D', row: 1},
-            {column: 'E', row: 1},
-            {column: 'D', row: 8},
-            {column: 'E', row: 8},
+        const newRookPositions : BoardPosition[] = [
+            {column: "D", row: 1},
+            {column: "E", row: 1},
+            {column: "D", row: 8},
+            {column: "E", row: 8},
         ]
-        let castleIndex = rooks.findIndex((i) => i === rookPosition)
+        console.log(`rookPosition ${rookPosition.column}${rookPosition.row}`)
+        let castleIndex = rooks.findIndex((i) => i.column === rookPosition.column && i.row === rookPosition.row)
+        console.log(`castleIndex ${castleIndex}`)
         let newBoardValues = {...boardValues}
-        const newKingPosition = newKingPositions[castleIndex]
-        const newRookPosition = newRookPositions[castleIndex]
-        const rook = getPieceFromPosition(rookPosition)
-        rook?.movement?.firstMove = null
-
+        const newKingPosition : BoardPosition= newKingPositions[castleIndex]
+        const newRookPosition : BoardPosition= newRookPositions[castleIndex]
+        const rook : Piece | null= getPieceFromPosition(rookPosition)
+        const king : Piece | null= getPieceFromPosition(kingPosition)
+        if(rook === null) return
+        if(rook.movement === null) return
+        if(king === null) return
+        if(king.movement === null) return
+        rook.movement.firstMove = null
         newBoardValues.board = removePieceFromPosition(newBoardValues.board, rookPosition)
+        newBoardValues.board = removePieceFromPosition(newBoardValues.board, kingPosition)
+        console.log(`Rook ${rook} : newRookPosition ${newRookPosition}`)
+        console.log(`King ${king} : newKingPosition ${newKingPosition}`)
+        newBoardValues.board = addPieceToPosition(newBoardValues.board, rook, newRookPosition)
+        newBoardValues.board = addPieceToPosition(newBoardValues.board, king, newKingPosition)
+        newBoardValues.selected = null
+        newBoardValues.movements = []
+        setBoardValues(newBoardValues)
+
 
     
     }
@@ -428,7 +443,7 @@ export const Board: React.FC = () => {
                     if (selectedPiece instanceof King 
                         && piece instanceof Rook) {
                             if(selectedPiece.movement?.firstMove !== null && piece.movement?.firstMove !== null) {
-                                castle()
+                                castle(newBoardValues.selected!, position)
                                 return
                             }
                     }
