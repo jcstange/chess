@@ -53,7 +53,6 @@ export const Square: React.FC<SquareProps> = ({
 
     function getImage(src: string | null | undefined) {
         if (src === null || src === undefined) return ""
-        console.log(`piece on ${position.column}${position.row} is ${piece?.isBlack ? "black" : "white"}`)
         if (src.length > 2) {
             var image = require('../Images/' + src)
             return (<img style={{

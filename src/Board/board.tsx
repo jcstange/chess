@@ -189,7 +189,8 @@ export const Board: React.FC = () => {
         if(piece instanceof King){
             let castle = canCastle(piece,position)
             if(castle !== null) {
-                possibleMovements.push(castle)
+                console.log("adding castle movement")
+                possibleMovements.push(castle.rookPosition)
             }
         } 
         piece.movement.moves.forEach((i) => {
@@ -320,8 +321,8 @@ export const Board: React.FC = () => {
     
         board[positionA.row - 1][columnA] = null
 
-        // remove first move from the pawn        
-        if(piece !== null && piece.movement !== null && piece instanceof Pawn) {
+        // remove first move from the pawn / king / rook        
+        if(piece !== null && piece.movement !== null) {
             piece.movement.firstMove = null 
         }
         board[positionB.row - 1][columnB] = piece
@@ -354,6 +355,46 @@ export const Board: React.FC = () => {
         })
     }
 
+    function castle(rookPosition: BoardPosition) {
+        const rooks = [ 
+            {column: 'A', row: 1}, 
+            {column: 'H', row: 1}, 
+            {column: 'A', row: 8}, 
+            {column: 'H', row: 8} 
+        ]
+        const newKingPositions = [
+            {column: 'C', row: 1},
+            {column: 'F', row: 1},
+            {column: 'C', row: 8},
+            {column: 'F', row: 8},
+        ]
+        const newRookPositions = [
+            {column: 'D', row: 1},
+            {column: 'E', row: 1},
+            {column: 'D', row: 8},
+            {column: 'E', row: 8},
+        ]
+        let castleIndex = rooks.findIndex((i) => i === rookPosition)
+        let newBoardValues = {...boardValues}
+        const newKingPosition = newKingPositions[castleIndex]
+        const newRookPosition = newRookPositions[castleIndex]
+        const rook = getPieceFromPosition(rookPosition)
+        rook?.movement?.firstMove = null
+
+        newBoardValues.board = removePieceFromPosition(newBoardValues.board, rookPosition)
+
+    
+    }
+
+    function addPieceToPosition(board: Nullable<Piece>[][], piece: Piece, boardPosition: BoardPosition) : Nullable<Piece>[][] {
+        board[boardPosition.row -1][getColumnNumber(boardPosition.column)] = piece
+        return board
+    }
+    function removePieceFromPosition(board: Nullable<Piece>[][], boardPosition: BoardPosition) : Nullable<Piece>[][] {
+        board[boardPosition.row - 1][getColumnNumber(boardPosition.column)] = null
+        return board
+    }
+
     function handleSelected(position: BoardPosition) {
         const newBoardValues = {...boardValues}
         const selectedPiece = getPieceFromPosition(newBoardValues.selected)
@@ -383,6 +424,14 @@ export const Board: React.FC = () => {
             //selected other
             if(piece !== null) { 
                 if(piece.isBlack === selectedPiece?.isBlack) {
+                    //handle castle
+                    if (selectedPiece instanceof King 
+                        && piece instanceof Rook) {
+                            if(selectedPiece.movement?.firstMove !== null && piece.movement?.firstMove !== null) {
+                                castle()
+                                return
+                            }
+                    }
                     //selected new piece
                     newBoardValues.selected = position
                     //setMovements
@@ -474,10 +523,15 @@ export const Board: React.FC = () => {
         }
     }
 
+    type Castle = {
+        kingPosition: BoardPosition,
+        rookPosition: BoardPosition
+    }
+
     function canCastle(
         king: Piece, 
         kingPosition: BoardPosition
-    ): Nullable<BoardPosition> {
+    ): Nullable<Castle> {
         const board = boardValues.board
         if(king.movement !== null && king.movement.firstMove !== null) {
            /* 
@@ -487,21 +541,35 @@ export const Board: React.FC = () => {
            4th: the squares that the king passes over must not be under attack 
            */
            // horizontally finding rook     
-           const horizontalMovements =  Array.from({length: 4}).map((value, key) => key)
-           horizontalMovements.forEach((i) => {
-               const column = getColumnNumber(kingPosition.column)
-               const nextColumn = king.isBlack ? column - i : column + i
-               const nextColumnLetter = getColumnLetter(nextColumn) 
-               const boardPosition = {column: nextColumn, row: kingPosition.row}   
-               const piece = getPieceFromPosition(boardPosition)
-               if(!!piece) {
-                   if(!(piece instanceof Rook)) return null
-                   if(piece.movement?.firstMove === null) return null
-                   // rook and king didn't move and there are no pieces between them
-
-               }
-           })
+            const horizontalMovements =  Array.from({length: 4}).map((value, key) => key + 1)
+            console.table(horizontalMovements)
+            for(let i of horizontalMovements) {
+                const column = getColumnNumber(kingPosition.column)
+                const nextColumn = column + i
+                const nextColumnLetter = getColumnLetter(nextColumn) 
+                const boardPosition = {column: nextColumnLetter, row: kingPosition.row}   
+                const piece = getPieceFromPosition(boardPosition)
+                if(piece !== null) {
+                    if(!(piece instanceof Rook)) { break }
+                    if(piece.movement?.firstMove === null) { break }
+                    // rook and king didn't move and there are no pieces between them
+                    const kingCastleColumn = nextColumn + 2
+                    const rookCastleColumn = nextColumn - 3
+                    return {
+                        kingPosition: {
+                            column: getColumnLetter(kingCastleColumn),
+                            row: kingPosition.row
+                        },
+                        rookPosition: boardPosition 
+                        //{
+                        //    column: getColumnLetter(rookCastleColumn),
+                        //    row: kingPosition.row
+                        //}
+                    }    
+                }
+            }
         } else return null
+        return null
     }
 
     function resetBoard() {
