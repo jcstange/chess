@@ -552,7 +552,6 @@ export const Board: React.FC = () => {
         king: Piece, 
         kingPosition: BoardPosition
     ): Nullable<Castle> {
-        const board = boardValues.board
         const rookPositions : BoardPosition[] = []
         if(king.movement !== null && king.movement.firstMove !== null) {
            /* 
