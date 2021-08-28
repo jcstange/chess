@@ -41,12 +41,12 @@ export class Pawn extends Piece {
     }   
 }
 
-export class Hook extends Piece {
+export class Rook extends Piece {
     constructor(isBlack: boolean) {
         super(isBlack)
         this.movement = { 
             canJump: false, 
-            firstMove: null, 
+            firstMove: [],
             moves: [
                 {v:1,h:0}, 
                 {v:2,h:0}, 
@@ -225,7 +225,6 @@ export class King extends Piece {
         super(isBlack)
         this.movement = { 
             canJump: false,
-            firstMove: null, 
             moves: [
                 {v:1,h:1},
                 {v:0,h:1},
@@ -236,6 +235,7 @@ export class King extends Piece {
                 {v:-1,h:1},
                 {v:1,h:-1},
             ],
+            firstMove: [],
             movesToKill: null 
         }
         this.image = 'king.png'

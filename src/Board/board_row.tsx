@@ -80,7 +80,11 @@ export const BoardRow: React.FC<BoardRowProps> = ({
         if (rowNumber === 8) {
             return (
                 <div style={styles.wrapper}>
-                    <div style={{textAlign: 'center'}}>{column}</div>
+                    <div style={{
+                        textAlign: 'center',
+                        marginBottom: 15,
+                        marginTop: 15
+                    }}>{column}</div>
                     <Square 
                         position={position}  
                         piece={pieces ? pieces[columnNumber] : null}
