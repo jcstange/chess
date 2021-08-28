@@ -189,7 +189,6 @@ export const Board: React.FC = () => {
         if(piece instanceof King){
             let castle = canCastle(piece,position)
             if(castle !== null) {
-                console.log("adding castle movement")
                 castle.rookPosition.every((i) => possibleMovements.push(i))
             }
         } 
