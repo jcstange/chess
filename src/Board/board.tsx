@@ -190,7 +190,7 @@ export const Board: React.FC = () => {
             let castle = canCastle(piece,position)
             if(castle !== null) {
                 console.log("adding castle movement")
-                possibleMovements.push(castle.rookPosition)
+                castle.rookPosition.every((i) => possibleMovements.push(i))
             }
         } 
         piece.movement.moves.forEach((i) => {
@@ -387,6 +387,7 @@ export const Board: React.FC = () => {
         if(king === null) return
         if(king.movement === null) return
         rook.movement.firstMove = null
+        king.movement.firstMove = null
         newBoardValues.board = removePieceFromPosition(newBoardValues.board, rookPosition)
         newBoardValues.board = removePieceFromPosition(newBoardValues.board, kingPosition)
         console.log(`Rook ${rook} : newRookPosition ${newRookPosition}`)
@@ -395,10 +396,17 @@ export const Board: React.FC = () => {
         newBoardValues.board = addPieceToPosition(newBoardValues.board, king, newKingPosition)
         newBoardValues.selected = null
         newBoardValues.movements = []
-        setBoardValues(newBoardValues)
-
-
-    
+        newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
+        newBoardValues.killMovements = []
+        setBoardValues({...boardValues,
+            board: newBoardValues.board,
+            selected: newBoardValues.selected,
+            movements: newBoardValues.movements,
+            killMovements: newBoardValues.killMovements,
+            check: newBoardValues.check,
+            cemetery: newBoardValues.cemetery,
+            isBlackTurn: newBoardValues.isBlackTurn
+        })
     }
 
     function addPieceToPosition(board: Nullable<Piece>[][], piece: Piece, boardPosition: BoardPosition) : Nullable<Piece>[][] {
@@ -440,8 +448,7 @@ export const Board: React.FC = () => {
             if(piece !== null) { 
                 if(piece.isBlack === selectedPiece?.isBlack) {
                     //handle castle
-                    if (selectedPiece instanceof King 
-                        && piece instanceof Rook) {
+                    if (selectedPiece instanceof King && piece instanceof Rook) {
                             if(selectedPiece.movement?.firstMove !== null && piece.movement?.firstMove !== null) {
                                 castle(newBoardValues.selected!, position)
                                 return
@@ -539,8 +546,7 @@ export const Board: React.FC = () => {
     }
 
     type Castle = {
-        kingPosition: BoardPosition,
-        rookPosition: BoardPosition
+        rookPosition: BoardPosition[]
     }
 
     function canCastle(
@@ -548,6 +554,7 @@ export const Board: React.FC = () => {
         kingPosition: BoardPosition
     ): Nullable<Castle> {
         const board = boardValues.board
+        const rookPositions : BoardPosition[] = []
         if(king.movement !== null && king.movement.firstMove !== null) {
            /* 
            1st: king and rook may not been moved
@@ -556,34 +563,44 @@ export const Board: React.FC = () => {
            4th: the squares that the king passes over must not be under attack 
            */
            // horizontally finding rook     
-            const horizontalMovements =  Array.from({length: 4}).map((value, key) => key + 1)
-            console.table(horizontalMovements)
+            const horizontalMovements = [ 1, 2, 3, 4 ] 
+            //movements to right
             for(let i of horizontalMovements) {
                 const column = getColumnNumber(kingPosition.column)
                 const nextColumn = column + i
                 const nextColumnLetter = getColumnLetter(nextColumn) 
                 const boardPosition = {column: nextColumnLetter, row: kingPosition.row}   
+                console.log(`checking positive movements ${boardPosition.column}${boardPosition.row}`)
                 const piece = getPieceFromPosition(boardPosition)
                 if(piece !== null) {
                     if(!(piece instanceof Rook)) { break }
                     if(piece.movement?.firstMove === null) { break }
                     // rook and king didn't move and there are no pieces between them
-                    const kingCastleColumn = nextColumn + 2
-                    const rookCastleColumn = nextColumn - 3
-                    return {
-                        kingPosition: {
-                            column: getColumnLetter(kingCastleColumn),
-                            row: kingPosition.row
-                        },
-                        rookPosition: boardPosition 
-                        //{
-                        //    column: getColumnLetter(rookCastleColumn),
-                        //    row: kingPosition.row
-                        //}
-                    }    
+                    rookPositions.push(boardPosition)
+                    break
+                }
+            }
+            //movements to left
+            for(let i of horizontalMovements) {
+                const column = getColumnNumber(kingPosition.column)
+                const nextColumn = column - i
+                const nextColumnLetter = getColumnLetter(nextColumn) 
+                const boardPosition = {column: nextColumnLetter, row: kingPosition.row}   
+                console.log(`checking negative movements ${boardPosition.column}${boardPosition.row}`)
+                const piece = getPieceFromPosition(boardPosition)
+                if(piece !== null) {
+                    if(!(piece instanceof Rook)) { break }
+                    if(piece.movement?.firstMove === null) { break }
+                    rookPositions.push(boardPosition)
+                    break
                 }
             }
         } else return null
+        if(rookPositions.length > 0) {
+            return {
+                rookPosition: rookPositions
+            } 
+        }
         return null
     }
 
