@@ -1,7 +1,6 @@
 
 import React from 'react'
 import { Piece } from '../Pieces/pieces'
-import { Nullable, BoardPosition } from './board'
 import { Square } from './square'
 
 type BoardRowProps = {

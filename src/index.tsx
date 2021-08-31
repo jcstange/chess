@@ -1,12 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Board } from './Board/board'
+import { BoardComponent } from './Board/boardComponent'
 
 const Game: React.FC = () => {
     return (
     <div className="game" style={{ height: '100%', width: '100%'}}>
         <div className="game-board" style={{ height: '100%', width: '100%'}}>
-            <Board />
+            <BoardComponent />
         </div>
     </div>)
 }

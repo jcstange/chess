@@ -2,7 +2,6 @@
 import React from 'react'
 import { Piece } from '../Pieces/pieces'
 import { Colors } from '../Constants/colors'
-import { Nullable, BoardPosition }from './board'
 
 type SquareProps = {
     position:  BoardPosition,

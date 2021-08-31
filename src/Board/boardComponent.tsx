@@ -3,35 +3,21 @@ import {
     Piece, 
     Pawn,
     Rook,
+    King,
     Knight,
-    Bishop,
     Queen,
-    King
+    Bishop
 } from '../Pieces/pieces'
 import { Colors } from '../Constants/colors'
 import { BoardRow } from './board_row'
 import { Move } from '../Pieces/pieces'
 import { Cemetery } from './cemetery'
+import { Board } from '../board'
+import { Status, StatusTab } from './status'
+import { getColumnLetter, getColumnNumber } from './utils'
 
-export type Nullable<T> = (T|null)
-
-export type BoardPosition = {
-    column: string,
-    row: number
-}
-
-type BoardValues = {
-    board: Nullable<Piece>[][],
-    selected: Nullable<BoardPosition>,
-    movements: Nullable<BoardPosition>[],
-    killMovements: Nullable<BoardPosition>[],
-    isBlackTurn: boolean
-    check: Nullable<[ BoardPosition, BoardPosition ]>,
-    cemetery: Piece[],
-    endGame: boolean
-} 
 /* The board has to have 64 piece in a square 8x8 */
-export const Board: React.FC = () => {
+export const BoardComponent: React.FC = () => {
     const styles = {
         button: {
             marginTop: 30,
@@ -66,7 +52,7 @@ export const Board: React.FC = () => {
     ]
 
     const [ boardValues, setBoardValues ] = useState<BoardValues>({
-        board:startBoard,
+        board: new Board(startBoard),
         selected:null,
         movements:[],
         killMovements: [],
@@ -75,22 +61,6 @@ export const Board: React.FC = () => {
         cemetery: [],
         endGame: false
     })
-
-    function getColumnNumber(column: string) : number {
-        const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
-        for(let i=0; i<columns.length; i++) {
-            if(column === columns[i]) {
-                return  i
-            }
-        }
-        // eslint-disable-next-line no-throw-literal
-        throw("") 
-    }
-
-    function getColumnLetter(column: number) : string {
-        const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
-        return columns[column]
-    }
 
     function addDirectionalMove(
         piece: Piece, 
@@ -103,7 +73,7 @@ export const Board: React.FC = () => {
             const column = getColumnLetter(columnNumber)
             if (row <= 8 && row > 0) {
                 const boardPosition = { column: column, row: row }
-                const pieceInPosition = getPieceFromPosition(boardPosition)
+                const pieceInPosition = boardValues.board.getPieceFromPosition(boardPosition)
                 if (pieceInPosition == null) {
                     return [ boardPosition, null ]
                 } else {
@@ -117,7 +87,7 @@ export const Board: React.FC = () => {
     }
 
     function getCheck(
-        board: Nullable<Piece>[][]
+        board: Board 
     ): Nullable<[BoardPosition,BoardPosition]> {
         let piecePositions = []
         var check : Nullable<[BoardPosition,BoardPosition]> = null
@@ -139,10 +109,10 @@ export const Board: React.FC = () => {
 
         // search for kill movements
         piecePositions.forEach((i: BoardPosition) => {
-            const piece = getPieceFromPosition(i)
+            const piece = boardValues.board.getPieceFromPosition(i)
             const moves = getMovesForPiece(piece, i)
             moves[1].forEach((j) => {
-                const killPiece = getPieceFromPosition(j)
+                const killPiece = boardValues.board.getPieceFromPosition(j)
                 if(killPiece instanceof King) {
                     check = [i , j!]
                 }
@@ -313,25 +283,24 @@ export const Board: React.FC = () => {
         positionA: BoardPosition, 
         positionB: BoardPosition
     ) {
-        const board = {...boardValues.board}
-        const columnA = getColumnNumber(positionA.column)
-        const columnB = getColumnNumber(positionB.column)
-        const piece = board[positionA.row - 1][columnA]
-    
-        board[positionA.row - 1][columnA] = null
+        const board : Board = {...boardValues.board}
+        const piece : Nullable<Piece> = board.getPieceFromPosition(positionA)
+
+        board.removePieceFromPosition(positionA)
 
         // remove first move from the pawn / king / rook        
         if(piece !== null && piece.movement !== null) {
             piece.movement.firstMove = null 
         }
-        board[positionB.row - 1][columnB] = piece
+
+        board.addPieceToPosition(piece!, positionB)
 
         // does check still exist
         if(boardValues.check !== null) {
-            const checkPiece = getPieceFromPosition(boardValues.check[0])
+            const checkPiece = board.getPieceFromPosition(boardValues.check[0])
             if(checkPiece !== null) {
                 getMovesForPiece(checkPiece, boardValues.check[0])[1].forEach((i) => {
-                    const killPiece = getPieceFromPosition(i)
+                    const killPiece = board.getPieceFromPosition(i)
                     if(killPiece instanceof King) {
                         boardValues.endGame = true
                     }
@@ -379,20 +348,21 @@ export const Board: React.FC = () => {
         let newBoardValues = {...boardValues}
         const newKingPosition : BoardPosition= newKingPositions[castleIndex]
         const newRookPosition : BoardPosition= newRookPositions[castleIndex]
-        const rook : Piece | null= getPieceFromPosition(rookPosition)
-        const king : Piece | null= getPieceFromPosition(kingPosition)
+        const rook : Piece | null= newBoardValues.board.getPieceFromPosition(rookPosition)
+        const king : Piece | null= newBoardValues.board.getPieceFromPosition(kingPosition)
         if(rook === null) return
         if(rook.movement === null) return
         if(king === null) return
         if(king.movement === null) return
         rook.movement.firstMove = null
         king.movement.firstMove = null
-        newBoardValues.board = removePieceFromPosition(newBoardValues.board, rookPosition)
-        newBoardValues.board = removePieceFromPosition(newBoardValues.board, kingPosition)
+        newBoardValues.board = newBoardValues.board.removePieceFromPosition(rookPosition)
+        newBoardValues.board = newBoardValues.board.removePieceFromPosition(kingPosition)
         console.log(`Rook ${rook} : newRookPosition ${newRookPosition}`)
         console.log(`King ${king} : newKingPosition ${newKingPosition}`)
-        newBoardValues.board = addPieceToPosition(newBoardValues.board, rook, newRookPosition)
-        newBoardValues.board = addPieceToPosition(newBoardValues.board, king, newKingPosition)
+        //TODO: Check how to handle history here
+        newBoardValues.board = newBoardValues.board.addPieceToPosition(rook, newRookPosition)
+        newBoardValues.board = newBoardValues.board.addPieceToPosition(king, newKingPosition)
         newBoardValues.selected = null
         newBoardValues.movements = []
         newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
@@ -408,19 +378,11 @@ export const Board: React.FC = () => {
         })
     }
 
-    function addPieceToPosition(board: Nullable<Piece>[][], piece: Piece, boardPosition: BoardPosition) : Nullable<Piece>[][] {
-        board[boardPosition.row -1][getColumnNumber(boardPosition.column)] = piece
-        return board
-    }
-    function removePieceFromPosition(board: Nullable<Piece>[][], boardPosition: BoardPosition) : Nullable<Piece>[][] {
-        board[boardPosition.row - 1][getColumnNumber(boardPosition.column)] = null
-        return board
-    }
-
     function handleSelected(position: BoardPosition) {
-        const newBoardValues = {...boardValues}
-        const selectedPiece = getPieceFromPosition(newBoardValues.selected)
-        const piece = getPieceFromPosition(position)
+        const newBoardValues = {...boardValues} 
+        const board: Board = newBoardValues.board
+        const selectedPiece = board.getPieceFromPosition(newBoardValues.selected)
+        const piece = board.getPieceFromPosition(position)
     
         //isSelected?
         if(boardValues.selected === null) {
@@ -460,7 +422,7 @@ export const Board: React.FC = () => {
                     newBoardValues.movements = moves[0]
                     newBoardValues.killMovements = moves[1]
                     moves[1].forEach((i) => {
-                        const killPiece = getPieceFromPosition(i)
+                        const killPiece = newBoardValues.board.getPieceFromPosition(i)
                         if(killPiece instanceof King) {
                             newBoardValues.check = [ position, i! ]
                         }
@@ -485,19 +447,20 @@ export const Board: React.FC = () => {
         newBoardValues: BoardValues, 
         position: BoardPosition
     ) {
-        const selectedPiece = getPieceFromPosition(newBoardValues.selected)
+        const selectedPiece = newBoardValues.board.getPieceFromPosition(newBoardValues.selected)
         const isKillMove: boolean = newBoardValues.killMovements.filter((i) => 
             i?.column === position.column && i.row === position.row).length > 0
         if(isKillMove) {
             const selected = newBoardValues!.selected!
             // add to cemetery
-            newBoardValues.cemetery.push(newBoardValues.board[position.row - 1]![getColumnNumber(position.column)]!)
+            newBoardValues.cemetery.push(newBoardValues.board.getPieceFrom(position))
             // delete piece
-            newBoardValues.board[selected.row - 1][getColumnNumber(selected.column)] = null
+            newBoardValues.board.removePieceFrom(selected)
             // remove selected piece 
             newBoardValues.selected = null
             // move piece to killed piece position 
-            newBoardValues.board[position.row - 1][getColumnNumber(position.column)] = selectedPiece
+
+            newBoardValues.board.addPieceToPosition(selectedPiece, position)
             newBoardValues.movements = []
             newBoardValues.killMovements = []
             newBoardValues.check = getCheck(newBoardValues.board)
@@ -517,16 +480,6 @@ export const Board: React.FC = () => {
 
     }
 
-    function getPieceFromPosition(position: Nullable<BoardPosition>) : Nullable<Piece> {
-        if(position == null) return null
-        const newBoard: Nullable<Piece>[][] = {...boardValues.board}
-        const row: number = position.row - 1
-        const column : number = getColumnNumber(position.column)
-        const boardPosition : Nullable<Piece> = newBoard[row][column]
-
-        return boardPosition    
-    }
-
     function canMove(
         piece: Nullable<Piece>, 
         position: Nullable<BoardPosition>
@@ -542,10 +495,6 @@ export const Board: React.FC = () => {
         if(movementMatch.length > 0) {
             movePiece(boardValues!.selected!, position!)
         }
-    }
-
-    type Castle = {
-        rookPosition: BoardPosition[]
     }
 
     function canCastle(
@@ -569,7 +518,7 @@ export const Board: React.FC = () => {
                 const nextColumnLetter = getColumnLetter(nextColumn) 
                 const boardPosition = {column: nextColumnLetter, row: kingPosition.row}   
                 console.log(`checking positive movements ${boardPosition.column}${boardPosition.row}`)
-                const piece = getPieceFromPosition(boardPosition)
+                const piece = boardValues.board.getPieceFromPosition(boardPosition)
                 if(piece !== null) {
                     if(!(piece instanceof Rook)) { break }
                     if(piece.movement?.firstMove === null) { break }
@@ -585,7 +534,7 @@ export const Board: React.FC = () => {
                 const nextColumnLetter = getColumnLetter(nextColumn) 
                 const boardPosition = {column: nextColumnLetter, row: kingPosition.row}   
                 console.log(`checking negative movements ${boardPosition.column}${boardPosition.row}`)
-                const piece = getPieceFromPosition(boardPosition)
+                const piece = boardValues.board.getPieceFromPosition(boardPosition)
                 if(piece !== null) {
                     if(!(piece instanceof Rook)) { break }
                     if(piece.movement?.firstMove === null) { break }
@@ -604,7 +553,7 @@ export const Board: React.FC = () => {
 
     function resetBoard() {
         setBoardValues({...boardValues, 
-            board:startBoard, 
+            board:new Board(startBoard), 
             selected: null, 
             movements: [], 
             killMovements: [], 
@@ -639,6 +588,7 @@ export const Board: React.FC = () => {
 
     return(
     <div style={{ display: 'inline-block', width: '100%'}}>
+        <StatusTab isBlack={boardValues.isBlackTurn} status={boardValues.check ? Status.CHECK : Status.TURN } />
         <div className="board" style={styles.board}>
             {renderRow(rowNumbers[0])}
             {renderRow(rowNumbers[1])}
