@@ -1,6 +1,8 @@
 import '@testing-library/react'
+import { render, } from '@testing-library/react'
 import { Square } from '../Board/square'
 import { Board } from '../board'
+import { startBoard, BoardValues, createBoardPosition } from '../Board/utils'
 
 test('simple test again', () => {
     expect(1+2).toBe(3)
@@ -17,8 +19,8 @@ test('test isBlack', () => {
         cemetery: [],
         endGame: false
     }
-    const boardPosition : BoardPosition = { column: 'A', row: 1 }
-    const container = (<Square 
+    const boardPosition : BoardPosition = createBoardPosition('A1')!
+    const { container } = render(<Square 
         position={boardPosition}
         piece={boardValues.board.getPieceFromPosition(boardPosition)}
         canMove={false}
@@ -28,5 +30,7 @@ test('test isBlack', () => {
         onSelected={()=>null}
     />)
 
+
+    
     
 })

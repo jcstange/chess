@@ -15,6 +15,7 @@ import { Cemetery } from './cemetery'
 import { Board } from '../board'
 import { Status, StatusTab } from './status'
 import { getColumnLetter, getColumnNumber } from './utils'
+import { BoardValues } from './utils'
 
 /* The board has to have 64 piece in a square 8x8 */
 export const BoardComponent: React.FC = () => {
@@ -67,7 +68,7 @@ export const BoardComponent: React.FC = () => {
         position: BoardPosition, 
         move: Move
     ) : [ Nullable<BoardPosition>, Nullable<BoardPosition> ] {
-        const columnNumber = getColumnNumber(position.column) + move.h 
+        const columnNumber = getColumnNumber(position.column)! + move.h 
         const row = piece.isBlack ? position.row - move.v : position.row + move.v
         if(columnNumber < 8 && columnNumber >= 0) {
             const column = getColumnLetter(columnNumber)
@@ -283,7 +284,7 @@ export const BoardComponent: React.FC = () => {
         positionA: BoardPosition, 
         positionB: BoardPosition
     ) {
-        const board : Board = {...boardValues.board}
+        const board : Board = boardValues.board
         const piece : Nullable<Piece> = board.getPieceFromPosition(positionA)
 
         board.removePieceFromPosition(positionA)
@@ -356,13 +357,13 @@ export const BoardComponent: React.FC = () => {
         if(king.movement === null) return
         rook.movement.firstMove = null
         king.movement.firstMove = null
-        newBoardValues.board = newBoardValues.board.removePieceFromPosition(rookPosition)
-        newBoardValues.board = newBoardValues.board.removePieceFromPosition(kingPosition)
+        newBoardValues.board.removePieceFromPosition(rookPosition)
+        newBoardValues.board.removePieceFromPosition(kingPosition)
         console.log(`Rook ${rook} : newRookPosition ${newRookPosition}`)
         console.log(`King ${king} : newKingPosition ${newKingPosition}`)
         //TODO: Check how to handle history here
-        newBoardValues.board = newBoardValues.board.addPieceToPosition(rook, newRookPosition)
-        newBoardValues.board = newBoardValues.board.addPieceToPosition(king, newKingPosition)
+        newBoardValues.board.addPieceToPosition(rook, newRookPosition)
+        newBoardValues.board.addPieceToPosition(king, newKingPosition)
         newBoardValues.selected = null
         newBoardValues.movements = []
         newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
@@ -453,14 +454,14 @@ export const BoardComponent: React.FC = () => {
         if(isKillMove) {
             const selected = newBoardValues!.selected!
             // add to cemetery
-            newBoardValues.cemetery.push(newBoardValues.board.getPieceFrom(position))
+            newBoardValues.cemetery.push(newBoardValues.board.getPieceFromPosition(position)!)
             // delete piece
-            newBoardValues.board.removePieceFrom(selected)
+            newBoardValues.board.removePieceFromPosition(selected)
             // remove selected piece 
             newBoardValues.selected = null
             // move piece to killed piece position 
 
-            newBoardValues.board.addPieceToPosition(selectedPiece, position)
+            newBoardValues.board.addPieceToPosition(selectedPiece!, position)
             newBoardValues.movements = []
             newBoardValues.killMovements = []
             newBoardValues.check = getCheck(newBoardValues.board)
@@ -514,7 +515,7 @@ export const BoardComponent: React.FC = () => {
             //movements to right
             for(let i of horizontalMovements) {
                 const column = getColumnNumber(kingPosition.column)
-                const nextColumn = column + i
+                const nextColumn = column! + i
                 const nextColumnLetter = getColumnLetter(nextColumn) 
                 const boardPosition = {column: nextColumnLetter, row: kingPosition.row}   
                 console.log(`checking positive movements ${boardPosition.column}${boardPosition.row}`)
@@ -530,7 +531,7 @@ export const BoardComponent: React.FC = () => {
             //movements to left
             for(let i of horizontalMovements) {
                 const column = getColumnNumber(kingPosition.column)
-                const nextColumn = column - i
+                const nextColumn = column! - i
                 const nextColumnLetter = getColumnLetter(nextColumn) 
                 const boardPosition = {column: nextColumnLetter, row: kingPosition.row}   
                 console.log(`checking negative movements ${boardPosition.column}${boardPosition.row}`)

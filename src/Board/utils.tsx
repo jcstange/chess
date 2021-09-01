@@ -1,5 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Piece, Pawn, Rook, Bishop, Knight, Queen, King } from '../Pieces/pieces'
+import { Board } from '../board'
 
 export let startBoard : Nullable<Piece>[][] = [
     [ new Rook(false) , new Knight(false), new Bishop(false), new Queen(false), new King(false), new Bishop(false), new Knight(false), new Rook(false) ],
@@ -19,11 +19,27 @@ export function getColumnNumber(column: string) : number {
             return  i
         }
     }
-    // eslint-disable-next-line no-throw-literal
-    throw("") 
+    throw("Column doesn't exist") 
 }
 
 export function getColumnLetter(column: number) : string {
     const columns = [ 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' ]
     return columns[column]
 }
+
+export function createBoardPosition(boardPosition: string) : Nullable<BoardPosition> {
+    if(getColumnNumber(boardPosition[0]) === null) return null
+    if(Number(boardPosition[1]) <= 0 && Number(boardPosition[1]) < 8) return null
+    return { column: boardPosition[0], row: Number(boardPosition[1]) }
+}
+
+export type BoardValues = {
+    board: Board,
+    selected: Nullable<BoardPosition>,
+    movements: Nullable<BoardPosition>[],
+    killMovements: Nullable<BoardPosition>[],
+    isBlackTurn: boolean
+    check: Nullable<[ BoardPosition, BoardPosition ]>,
+    cemetery: Piece[],
+    endGame: boolean
+} 

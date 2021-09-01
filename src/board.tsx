@@ -9,7 +9,6 @@ export class Board extends Array<Array<Nullable<Piece>>> {
         this.history.push(_startBoard)
     }
 
-
     getPieceFromPosition(position: Nullable<BoardPosition>) : Nullable<Piece> {
         if(position == null) return null
         const row: number = position.row - 1
