@@ -1,7 +1,7 @@
 import { Piece, Pawn, Rook, Bishop, Knight, Queen, King } from '../Pieces/pieces'
 import { Board } from '../board'
 
-export let startBoard : Nullable<Piece>[][] = [
+export const startBoard : Nullable<Piece>[][] = [
     [ new Rook(false) , new Knight(false), new Bishop(false), new Queen(false), new King(false), new Bishop(false), new Knight(false), new Rook(false) ],
     [ new Pawn(false) , new Pawn(false)  , new Pawn(false)  , new Pawn(false) , new Pawn(false), new Pawn(false)  , new Pawn(false)  , new Pawn(false) ],
     [ null           , null        , null        , null       , null      , null        , null        , null       ],
