@@ -1,6 +1,6 @@
-interface BoardPosition {
+type BoardPosition = {
     column: string,
-    row: number,
+    row: number
 }
 
 type Nullable<T> = T | null

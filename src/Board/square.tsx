@@ -78,6 +78,7 @@ export const Square: React.FC<SquareProps> = ({
     }
     return (
     <div 
+      className="square"
       style={styles.square}
       onClick={() => selectPiece()}
       >

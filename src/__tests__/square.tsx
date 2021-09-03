@@ -6,13 +6,8 @@ import { startBoard, BoardValues, createBoardPosition } from '../Board/utils'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import { Colors } from '../Constants/colors'
-import { readBuilderProgram } from 'typescript'
 
-test('simple test again', () => {
-    expect(1+2).toBe(3)
-})
-
-test('test select piece in A1', () => {
+test('select piece in A1', () => {
     const boardValues : BoardValues = {
         board: new Board(startBoard),
         selected:null,
@@ -25,7 +20,7 @@ test('test select piece in A1', () => {
     }
     const fn = jest.fn()
     const boardPosition : BoardPosition = createBoardPosition('A1')!
-    const { container, baseElement } = render(<Square 
+    render(<Square 
         position={boardPosition}
         piece={boardValues.board.getPieceFromPosition(boardPosition)}
         canMove={false}
@@ -34,11 +29,12 @@ test('test select piece in A1', () => {
         inCheck={false}
         onSelected={fn}
     />)
-    userEvent.click(baseElement)
-    expect(fn).toBeCalled
+    let contentDiv = document.getElementsByClassName('square')
+    userEvent.click(contentDiv[0])
+    expect(fn).toBeCalled()
 })
 
-test('test color A1 selected', () => {
+test('color A1 selected', () => {
     const boardPosition : BoardPosition = createBoardPosition('A1')!
     const boardValues : BoardValues = {
         board: new Board(startBoard),
@@ -51,7 +47,7 @@ test('test color A1 selected', () => {
         endGame: false
     }
     const fn = jest.fn()
-    const { baseElement } = render(<Square 
+    render(<Square 
         position={boardPosition}
         piece={boardValues.board.getPieceFromPosition(boardPosition)}
         canMove={false}
@@ -60,10 +56,11 @@ test('test color A1 selected', () => {
         inCheck={false}
         onSelected={fn}
     />)
-    expect(baseElement.firstChild).toHaveStyle({backgroundColor: Colors.selected_green})
+    let contentDiv = document.getElementsByClassName('square')
+    expect(contentDiv[0]).toHaveStyle({backgroundColor: Colors.selected_green})
 })
 
-test('test color A1 check', () => {
+test('color A1 check', () => {
     const boardPosition : BoardPosition = createBoardPosition('A1')!
     const boardValues : BoardValues = {
         board: new Board(startBoard),
@@ -76,7 +73,7 @@ test('test color A1 check', () => {
         endGame: false
     }
     const fn = jest.fn()
-    const { baseElement } = render(<Square 
+    render(<Square 
         position={boardPosition}
         piece={boardValues.board.getPieceFromPosition(boardPosition)}
         canMove={false}
@@ -85,10 +82,11 @@ test('test color A1 check', () => {
         inCheck={true}
         onSelected={fn}
     />)
-    expect(baseElement).toHaveStyle({backgroundColor: Colors.red})
+    let contentDiv = document.getElementsByClassName('square')
+    expect(contentDiv[0]).toHaveStyle({backgroundColor: Colors.red})
 })
 
-test('test color A1 move', () => {
+test('color A1 move', () => {
     const boardPosition : BoardPosition = createBoardPosition('A1')!
     const boardValues : BoardValues = {
         board: new Board(startBoard),
@@ -101,7 +99,7 @@ test('test color A1 move', () => {
         endGame: false
     }
     const fn = jest.fn()
-    const { baseElement } = render(<Square 
+    render(<Square 
         position={boardPosition}
         piece={boardValues.board.getPieceFromPosition(boardPosition)}
         canMove={true}
@@ -110,5 +108,34 @@ test('test color A1 move', () => {
         inCheck={false}
         onSelected={fn}
     />)
-    expect(baseElement).toHaveStyle({backgroundColor: Colors.red})
+
+    let contentDiv = document.getElementsByClassName('square')
+    expect(contentDiv[0]).toHaveStyle({backgroundColor: Colors.move_blue})
+})
+
+test('A1 case color', () => {
+    const boardPosition : BoardPosition = createBoardPosition('A1')!
+    const boardValues : BoardValues = {
+        board: new Board(startBoard),
+        selected:null,
+        movements:[],
+        killMovements: [],
+        isBlackTurn: false,
+        check: null,
+        cemetery: [],
+        endGame: false
+    }
+    const fn = jest.fn()
+    render(<Square 
+        position={boardPosition}
+        piece={boardValues.board.getPieceFromPosition(boardPosition)}
+        canMove={false}
+        canKill={false}
+        selected={false}
+        inCheck={false}
+        onSelected={fn}
+    />)
+
+    let contentDiv = document.getElementsByClassName('square')
+    expect(contentDiv[0]).toHaveStyle({backgroundColor: Colors.brown})
 })
