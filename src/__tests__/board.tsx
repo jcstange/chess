@@ -2,12 +2,9 @@
 import { render, cleanup, waitFor, fireEvent } from '@testing-library/react'
 import { BoardComponent } from '../Board/boardComponent'
 import { Board } from '../board'
-import React from 'react'
 import { startBoard, BoardValues, createBoardPosition } from '../Board/utils'
 import '@testing-library/jest-dom'
 import { Colors } from '../Constants/colors'
-import { act } from 'react-dom/test-utils'
-import { isJsxText } from 'typescript'
 
 beforeAll(()=> cleanup)
 
@@ -35,16 +32,23 @@ test('restart game',  async () => {
 })
 
 
-test('select piece',  async () => {
+test('select piece',  () => {
     const { container } = render(<BoardComponent />)
     let board = container.children[0].children[1]
-    let boardRow = board.children[0].children[1]
-    let square = boardRow.children[0].children[1]
+    let boardRow = board.children[7].children[1]
+    let square = boardRow.children[0].children[0]
     fireEvent.click(square)
 
-    jest.advanceTimersByTime(1000)
-    let newSquare = boardRow.children[0].children[1]
-    //await waitFor(() => {
-        expect(newSquare).toHaveStyle({backgroundColor: Colors.light_brown})
-    //})
+    expect(square).toHaveStyle({backgroundColor: Colors.selected_green})
+})
+
+test('move piece',  () => {
+    const { container } = render(<BoardComponent />)
+    let board = container.children[0].children[1]
+    //Knight
+    let boardRow = board.children[7].children[1]
+    let square = boardRow.children[1].children[0]
+    fireEvent.click(square)
+
+    expect(square).toHaveStyle({backgroundColor: Colors.selected_green})
 })
