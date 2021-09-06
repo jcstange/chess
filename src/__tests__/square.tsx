@@ -1,9 +1,8 @@
 import '@testing-library/react'
-import { render } from '@testing-library/react'
+import { render, fireEvent } from '@testing-library/react'
 import { Square } from '../Board/square'
 import { Board } from '../board'
 import { startBoard, BoardValues, createBoardPosition } from '../Board/utils'
-import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
 import { Colors } from '../Constants/colors'
 
@@ -20,7 +19,7 @@ test('select piece in A1', () => {
     }
     const fn = jest.fn()
     const boardPosition : BoardPosition = createBoardPosition('A1')!
-    render(<Square 
+    const { container } = render(<Square 
         position={boardPosition}
         piece={boardValues.board.getPieceFromPosition(boardPosition)}
         canMove={false}
@@ -29,8 +28,7 @@ test('select piece in A1', () => {
         inCheck={false}
         onSelected={fn}
     />)
-    let contentDiv = document.getElementsByClassName('square')
-    userEvent.click(contentDiv[0])
+    fireEvent.click(container.children[0])
     expect(fn).toBeCalled()
 })
 
