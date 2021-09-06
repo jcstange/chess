@@ -78,8 +78,10 @@ export const BoardRow: React.FC<BoardRowProps> = ({
 
         if (rowNumber === 8) {
             return (
-                <div style={styles.wrapper}>
-                    <div style={{
+                <div className="rowWrapper"
+                    style={styles.wrapper}>
+                    <div className="columnName"
+                        style={{
                         textAlign: 'center',
                         marginBottom: 15,
                         marginTop: 15
@@ -98,7 +100,7 @@ export const BoardRow: React.FC<BoardRowProps> = ({
             )
         }
         return (
-        <div style={styles.wrapper}>
+        <div className="squareWrapper"style={styles.wrapper}>
             <Square 
                 position={position}  
                 piece={pieces ? pieces[columnNumber] : null}

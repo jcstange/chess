@@ -570,8 +570,8 @@ export const BoardComponent: React.FC = () => {
         rowNumber: number 
     ) {
         return (
-        <div style={{display: 'flex'}}>
-            <div style={{alignSelf: 'center'}}>{rowNumber}</div>
+        <div className="boardRowFlex" style={{display: 'flex'}}>
+            <div className="boardRowCenter" style={{alignSelf: 'center'}}>{rowNumber}</div>
             <BoardRow 
                 rowNumber={rowNumber} 
                 pieces={boardValues.board[rowNumber-1]}
@@ -602,6 +602,7 @@ export const BoardComponent: React.FC = () => {
         </div>
         <div>
             <button 
+            className="restart"
             style={styles.button}
             onClick={() => resetBoard()}>RESTART GAME</button>
         </div>
