@@ -45,10 +45,23 @@ test('select piece',  () => {
 test('move piece',  () => {
     const { container } = render(<BoardComponent />)
     let board = container.children[0].children[1]
-    //Knight
-    let boardRow = board.children[7].children[1]
-    let square = boardRow.children[1].children[0]
-    fireEvent.click(square)
+    //Select Knight
+    let boardRowFrom = board.children[7].children[1]
+    let squareFrom = boardRowFrom.children[1].children[0]
+    fireEvent.click(squareFrom)
 
-    expect(square).toHaveStyle({backgroundColor: Colors.selected_green})
+    expect(squareFrom).toHaveStyle({backgroundColor: Colors.selected_green})
+
+    //Move piece and check if it was moved
+    let boardRowTo = board.children[5].children[1]
+    let squareTo = boardRowTo.children[0].children[0]
+    fireEvent.click(squareTo)
+    let piece = squareTo.children[0].children[0]
+
+    expect(piece).toHaveClass("pieceImage")
+
+    //Check emptySquare
+    let nextSquare = boardRowTo.children[1].children[0]
+    let notPiece = nextSquare.children[0].children[0]
+    expect(notPiece).toHaveClass("emptySquare")
 })
