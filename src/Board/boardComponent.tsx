@@ -16,7 +16,8 @@ import { Board } from '../board'
 import { Status, StatusTab } from './status'
 import { getColumnLetter, getColumnNumber } from './utils'
 import { BoardValues } from './utils'
-
+import { Dialog } from '@mui/material/Dialog'
+import { PawnSwitch } from './pawn_switch'
 /* The board has to have 64 piece in a square 8x8 */
 export const BoardComponent: React.FC = () => {
     const styles = {
@@ -307,6 +308,17 @@ export const BoardComponent: React.FC = () => {
                     }
                 })
                 if(boardValues.endGame === false) boardValues.check = null
+            }
+        }
+
+        if(piece instanceof Pawn) {
+            if(piece.isBlack && positionB.row === 0 ) {
+                //show black pawn_switch
+                //<PawnSwitch isBlack={true} position={positionB} />
+            }
+            if(!piece.isBlack && positionB.row === 7) {
+                //show white pawn_switch
+                //<PawnSwitch isBlack={false} position={positionB} />
             }
         }
 
@@ -609,6 +621,10 @@ export const BoardComponent: React.FC = () => {
         <div style={styles.cemetery}>
             <Cemetery cemetery={boardValues.cemetery} />
         </div>
+        <Dialog>
+            <PawnSwitch isBlack={true} position={{column: 'A', row: 1}}/>
+            <Button onClick={() => onclose()}>Ok</Button>
+        </Dialog>
     </div>
     )
 }
