@@ -37,7 +37,7 @@ export class Pawn extends Piece {
                 {v:1,h:-1}
             ]
          }
-        this.image = "pawn.png"
+        this.image = "pawn.svg"
     }   
 }
 
@@ -79,7 +79,7 @@ export class Rook extends Piece {
             ],
             movesToKill: null
          }
-        this.image = 'hook.png'
+        this.image = 'rook.svg'
     }   
 }
 
@@ -101,7 +101,7 @@ export class Knight extends Piece {
             ],
             movesToKill: null        
         }
-        this.image = 'knight.png'
+        this.image = 'knight.svg'
     }   
 }
 
@@ -143,7 +143,7 @@ export class Bishop extends Piece {
             ],
             movesToKill: null
         }
-        this.image = 'bishop.png'
+        this.image = 'bishop.svg'
     }
 }
 
@@ -216,7 +216,7 @@ export class Queen extends Piece {
             ],
             movesToKill: null
         }
-        this.image = 'queen.png'
+        this.image = 'queen.svg'
     }
 }
 
@@ -238,7 +238,7 @@ export class King extends Piece {
             firstMove: [],
             movesToKill: null 
         }
-        this.image = 'king.png'
+        this.image = 'king.svg'
     }
 
 }
