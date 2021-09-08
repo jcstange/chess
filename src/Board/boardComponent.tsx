@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import {
     Piece, 
     Pawn,
@@ -14,6 +14,7 @@ import { Status, StatusTab } from './status'
 import { getColumnLetter, getColumnNumber } from './utils'
 import { BoardValues } from './utils'
 import { PawnSwitchDialog } from '../Dialogs/pawnSwitchDialog'
+import { Dialog, Button } from '@mui/material'
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
@@ -56,6 +57,13 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     })
 
     const [ openDialog, setOpenDialog ] = useState<IPawnSwitch>({open:false, isBlack: null, position:null})
+    const [ endDialog, setEndDialog ] = useState<boolean>(false)
+
+    useEffect(() => {
+        if(boardValues.endGame) {
+            setEndDialog(true)
+        } 
+    },[boardValues])
 
     //Mechanics
 
@@ -458,6 +466,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             i?.column === position.column && i.row === position.row).length > 0
         if(isKillMove) {
             const selected = newBoardValues!.selected!
+            const deadPiece = newBoardValues.board.getPieceFromPosition(position)
+
             // add to cemetery
             newBoardValues.cemetery.push(newBoardValues.board.getPieceFromPosition(position)!)
             // delete piece
@@ -471,6 +481,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             newBoardValues.killMovements = []
             newBoardValues.check = getCheck(newBoardValues.board)
             newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
+            newBoardValues.endGame = deadPiece instanceof King
             setBoardValues({...boardValues,
                 board: newBoardValues.board,
                 selected: newBoardValues.selected,
@@ -478,7 +489,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
                 killMovements: newBoardValues.killMovements,
                 check: newBoardValues.check,
                 cemetery: newBoardValues.cemetery,
-                isBlackTurn: newBoardValues.isBlackTurn
+                isBlackTurn: newBoardValues.isBlackTurn,
+                endGame: newBoardValues.endGame
             })
             return true
         }
@@ -560,6 +572,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     //end Mechanics
 
     function resetBoard() {
+        setEndDialog(false)
+        setOpenDialog({open:false,isBlack:null,position:null})
         setBoardValues({...boardValues, 
             board:new Board(startBoard), 
             selected: null, 
@@ -625,6 +639,10 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             <Cemetery cemetery={boardValues.cemetery} />
         </div>
         <PawnSwitchDialog open={openDialog} handleClose={(piece, position)=> pawnSwitchPiece(piece,position)} />
+        <Dialog open={endDialog}>
+            <div style={{padding:20}}>Game over - {boardValues.isBlackTurn ? "Black" : "White"} won</div>
+            <Button onClick={() => resetBoard()}>Restart</Button>
+        </Dialog>
     </div>
     )
 }
