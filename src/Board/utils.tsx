@@ -19,6 +19,7 @@ export function getColumnNumber(column: string) : number {
             return  i
         }
     }
+    // eslint-disable-next-line no-throw-literal
     throw("Column doesn't exist") 
 }
 

@@ -51,7 +51,7 @@ export const Square: React.FC<SquareProps> = ({
     }
 
     function getImage(src: string | null | undefined) {
-        if (src === null || src === undefined) return <div className="emptySquare">""</div> 
+        if (src === null || src === undefined) return <div className="emptySquare"></div> 
         if (src.length > 2) {
             var image = require('../Images/' + src)
             return (<img style={{
