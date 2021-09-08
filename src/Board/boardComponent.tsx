@@ -4,9 +4,6 @@ import {
     Pawn,
     Rook,
     King,
-    Knight,
-    Queen,
-    Bishop
 } from '../Pieces/pieces'
 import { Colors } from '../Constants/colors'
 import { BoardRow } from './board_row'
@@ -16,9 +13,13 @@ import { Board } from '../board'
 import { Status, StatusTab } from './status'
 import { getColumnLetter, getColumnNumber } from './utils'
 import { BoardValues } from './utils'
-
+import { PawnSwitchDialog } from '../Dialogs/pawnSwitchDialog'
 /* The board has to have 64 piece in a square 8x8 */
-export const BoardComponent: React.FC = () => {
+
+type BoardComponentProps = {
+    startBoard: Nullable<Piece>[][] 
+}
+export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) => {
     const styles = {
         button: {
             marginTop: 30,
@@ -41,19 +42,10 @@ export const BoardComponent: React.FC = () => {
         }
     }
 
-    const startBoard : Nullable<Piece>[][] = [
-        [ new Rook(false) , new Knight(false), new Bishop(false), new Queen(false), new King(false), new Bishop(false), new Knight(false), new Rook(false) ],
-        [ new Pawn(false) , new Pawn(false)  , new Pawn(false)  , new Pawn(false) , new Pawn(false), new Pawn(false)  , new Pawn(false)  , new Pawn(false) ],
-        [ null           , null        , null        , null       , null      , null        , null        , null       ],
-        [ null           , null        , null        , null       , null      , null        , null        , null       ],
-        [ null           , null        , null        , null       , null      , null        , null        , null       ],
-        [ null           , null        , null        , null       , null      , null        , null        , null       ],
-        [ new Pawn(true) , new Pawn(true)  , new Pawn(true)  , new Pawn(true) , new Pawn(true), new Pawn(true)  , new Pawn(true)  , new Pawn(true) ],
-        [ new Rook(true) , new Knight(true), new Bishop(true), new Queen(true), new King(true), new Bishop(true), new Knight(true), new Rook(true) ],
-    ]
 
+    const _startBoard = [...startBoard].map((i) => [...i])
     const [ boardValues, setBoardValues ] = useState<BoardValues>({
-        board: new Board(startBoard),
+        board: new Board(_startBoard),
         selected:null,
         movements:[],
         killMovements: [],
@@ -62,6 +54,10 @@ export const BoardComponent: React.FC = () => {
         cemetery: [],
         endGame: false
     })
+
+    const [ openDialog, setOpenDialog ] = useState<IPawnSwitch>({open:false, isBlack: null, position:null})
+
+    //Mechanics
 
     function addDirectionalMove(
         piece: Piece, 
@@ -310,6 +306,15 @@ export const BoardComponent: React.FC = () => {
             }
         }
 
+        if(piece instanceof Pawn) {
+            if(piece.isBlack && positionB.row === 1 ) {
+                setOpenDialog({open: true, isBlack: true, position: positionB})
+            }
+            if(!piece.isBlack && positionB.row === 8) {
+                setOpenDialog({open: true, isBlack: false, position: positionB})
+            }
+        }
+
         boardValues.check = getCheck(board)
 
         setBoardValues({...boardValues, 
@@ -552,6 +557,8 @@ export const BoardComponent: React.FC = () => {
         return null
     }
 
+    //end Mechanics
+
     function resetBoard() {
         setBoardValues({...boardValues, 
             board:new Board(startBoard), 
@@ -563,6 +570,14 @@ export const BoardComponent: React.FC = () => {
             cemetery: [],
             endGame: false
         })
+    }
+
+    function pawnSwitchPiece(piece: Piece, position: BoardPosition) {
+        setOpenDialog({open:false, isBlack:null, position:null})
+        boardValues.board.removePieceFromPosition(position)
+        boardValues.board.addPieceToPosition(piece, position)
+        setBoardValues({...boardValues})
+        console.log(`${piece} was selected in dialog`)
     }
 
 
@@ -609,6 +624,7 @@ export const BoardComponent: React.FC = () => {
         <div style={styles.cemetery}>
             <Cemetery cemetery={boardValues.cemetery} />
         </div>
+        <PawnSwitchDialog open={openDialog} handleClose={(piece, position)=> pawnSwitchPiece(piece,position)} />
     </div>
     )
 }

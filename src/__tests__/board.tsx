@@ -24,7 +24,7 @@ test('restart game',  async () => {
     const boardPosition : BoardPosition = createBoardPosition('A1')!
     const piece = boardValues.board.getPieceFromPosition(boardPosition)
     boardValues.board.removePieceFromPosition(boardPosition)
-    const { container } = render(<BoardComponent />)
+    const { container } = render(<BoardComponent startBoard={startBoard} />)
     let restartButton = container.children[0].children[2]
     fireEvent.click(restartButton)
     await waitFor(() => restartButton)
@@ -33,17 +33,17 @@ test('restart game',  async () => {
 
 
 test('select piece',  () => {
-    const { container } = render(<BoardComponent />)
+    const { container } = render(<BoardComponent  startBoard={startBoard} />)
     let board = container.children[0].children[1]
     let boardRow = board.children[7].children[1]
-    let square = boardRow.children[0].children[0]
+    let square = boardRow.children[1].children[0]
     fireEvent.click(square)
 
     expect(square).toHaveStyle({backgroundColor: Colors.selected_green})
 })
 
 test('move piece',  () => {
-    const { container } = render(<BoardComponent />)
+    const { container } = render(<BoardComponent  startBoard={startBoard} />)
     let board = container.children[0].children[1]
     //Select Knight
     let boardRowFrom = board.children[7].children[1]
