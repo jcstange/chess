@@ -600,7 +600,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     ) {
         return (
         <div className="boardRowFlex" style={{display: 'flex'}}>
-            <div className="boardRowCenter" style={{alignSelf: 'center'}}>{rowNumber}</div>
+            <div className="boardRowNumber" style={{alignSelf: 'center'}}>{rowNumber}</div>
             <BoardRow 
                 rowNumber={rowNumber} 
                 pieces={boardValues.board[rowNumber-1]}
@@ -617,7 +617,15 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     const rowNumbers = [ 8, 7, 6, 5, 4, 3, 2, 1 ]
 
     return(
-    <div style={{ display: 'inline-block', width: '100%'}}>
+    <div style={{ 
+        display: 'inline-block', 
+        width: '100%', 
+        maxWidth: 1000, 
+        justifyContent:'center',
+        alignItems:'center',
+        marginLeft: '50%',
+        transform: 'translate(-50%,0%)'
+        }}>
         <StatusTab isBlack={boardValues.isBlackTurn} status={boardValues.check ? Status.CHECK : Status.TURN } />
         <div className="board" style={styles.board}>
             {renderRow(rowNumbers[0])}
