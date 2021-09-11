@@ -15,28 +15,34 @@ import { getColumnLetter, getColumnNumber } from './utils'
 import { BoardValues } from './utils'
 import { PawnSwitchDialog } from '../Dialogs/pawnSwitchDialog'
 import { Dialog, Button } from '@mui/material'
+import useIsMax from '../windowDimension'
+import '@fontsource/roboto'
+import texture from '../Images/darkTexture.jpeg'
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
     startBoard: Nullable<Piece>[][] 
 }
 export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) => {
+    const isMaxWidth: boolean = useIsMax()
     const styles = {
-        button: {
-            marginTop: 30,
-            borderWidth: 0,
-            color: Colors.white,
-            padding: 25,
-            backgroundColor: Colors.brown,
-            borderRadius: 5,
-            width: '50%',
-            marginLeft: '25%'
-        },
         board: {
             display: 'block',
             width: '90%',
+            backgroundImage: `url(${texture})`,
+            backgroundPosition: 'center',
+            backgroundRepeat: 'repeat',
+            paddingBottom: isMaxWidth ? 50 : '5vw',
+            paddingRight: isMaxWidth ? 50 : '5vw',
+            color: Colors.white,
+            fontFamily: 'Roboto',
+            borderRadius: 5,
+            borderStyle: 'solid',
+            borderColor: Colors.black,
+            borderWidth: 1,
             marginLeft: '5%',
-            marginRight: '5%'
+            marginRight: '5%',
+            filter: `drop-shadow(2px 2px 2px ${Colors.black})`,
         },
         cemetery: {
             marginTop: 30
@@ -575,7 +581,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         setEndDialog(false)
         setOpenDialog({open:false,isBlack:null,position:null})
         setBoardValues({...boardValues, 
-            board:new Board(startBoard), 
+            board:new Board(_startBoard), 
             selected: null, 
             movements: [], 
             killMovements: [], 
@@ -600,7 +606,12 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     ) {
         return (
         <div className="boardRowFlex" style={{display: 'flex'}}>
-            <div className="boardRowNumber" style={{alignSelf: 'center'}}>{rowNumber}</div>
+            <div className="boardRowNumber" style={{
+                display: 'flex', 
+                width: '8%',
+                justifyContent: 'center', 
+                alignSelf: 'center'
+                }}>{rowNumber}</div>
             <BoardRow 
                 rowNumber={rowNumber} 
                 pieces={boardValues.board[rowNumber-1]}
@@ -626,7 +637,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         marginLeft: '50%',
         transform: 'translate(-50%,0%)'
         }}>
-        <StatusTab isBlack={boardValues.isBlackTurn} status={boardValues.check ? Status.CHECK : Status.TURN } />
+        <StatusTab isBlack={boardValues.isBlackTurn} status={boardValues.check ? Status.CHECK : Status.TURN } restart={()=>resetBoard()} />
         <div className="board" style={styles.board}>
             {renderRow(rowNumbers[0])}
             {renderRow(rowNumbers[1])}
@@ -636,12 +647,6 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             {renderRow(rowNumbers[5])}
             {renderRow(rowNumbers[6])}
             {renderRow(rowNumbers[7])}
-        </div>
-        <div>
-            <button 
-            className="restart"
-            style={styles.button}
-            onClick={() => resetBoard()}>RESTART GAME</button>
         </div>
         <div style={styles.cemetery}>
             <Cemetery cemetery={boardValues.cemetery} />

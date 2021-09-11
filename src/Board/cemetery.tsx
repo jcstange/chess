@@ -15,7 +15,7 @@ export const Cemetery: React.FC<CemeteryProps> = ({ cemetery }) => {
                     <img style={{
                         display: 'block',
                         width: '50%',
-                        marginLeft: '25%',
+                        padding: 20,
                         filter: i?.isBlack ? 'none' : 'invert(100%)'
                     }} src={image.default} alt=""/>
                 </div>

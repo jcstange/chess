@@ -2,6 +2,8 @@
 import React from 'react'
 import { Piece } from '../Pieces/pieces'
 import { Colors } from '../Constants/colors'
+import lightTexture from '../Images/lightTexture.jpeg'
+import darkTexture from '../Images/darkTexture.jpeg'
 
 type SquareProps = {
     position:  BoardPosition,
@@ -72,6 +74,9 @@ export const Square: React.FC<SquareProps> = ({
             height: '10vw',
             maxWidth: 100,
             maxHeight: 100,
+            backgroundImage: selected ? 'none' : inCheck ? 'none' : canMove? 'none' : canKill ? 'none' : isBlack() ? `url(${darkTexture})` :`url(${lightTexture})`,
+            backgroundPosition: 'center',
+            backgroundRepeat: 'repeat',
             backgroundColor: selected ? Colors.selected_green : inCheck ? Colors.red : canMove ? Colors.move_blue : canKill ? Colors.red : isBlack() ? Colors.brown : Colors.light_brown,
             borderStyle: 'solid',
             borderWidth: 1,
@@ -89,9 +94,8 @@ export const Square: React.FC<SquareProps> = ({
               top: '50%',
               left: '50%',
               margin: 0,
-              textAlign: 'center',
-              color: piece !== null ? piece.isBlack ? Colors.black : Colors.white : Colors.black,
-              fontSize: 30, 
+              zIndex: 1,
+              filter: `drop-shadow(2px 2px 2px ${'#3A3A3A'})`,
               transform: 'translate(-50%,-50%)'
             }}>
                 {getImage(piece?.image)}
