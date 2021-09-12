@@ -610,7 +610,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
                 display: 'flex', 
                 width: '8%',
                 justifyContent: 'center', 
-                alignSelf: 'center'
+                alignSelf: 'center',
+                paddingTop: rowNumber === 8 ? 40 : 0 
                 }}>{rowNumber}</div>
             <BoardRow 
                 rowNumber={rowNumber} 

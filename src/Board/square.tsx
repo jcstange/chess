@@ -95,7 +95,7 @@ export const Square: React.FC<SquareProps> = ({
               left: '50%',
               margin: 0,
               zIndex: 1,
-              filter: `drop-shadow(2px 2px 2px ${'#3A3A3A'})`,
+              filter: `drop-shadow(4px 4px 4px ${Colors.shadow_gray})`,
               transform: 'translate(-50%,-50%)'
             }}>
                 {getImage(piece?.image)}
