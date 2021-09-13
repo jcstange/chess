@@ -21,6 +21,7 @@ import { Dialog, Button } from '@mui/material'
 import useIsMax from '../windowDimension'
 import '@fontsource/roboto'
 import texture from '../Images/darkTexture.jpeg'
+import { GoogleLoginDialog } from '../Dialogs/googleLogin'
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
@@ -693,6 +694,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             <div style={{padding:20}}>Game over - {boardValues.isBlackTurn ? "Black" : "White"} won</div>
             <Button onClick={() => resetBoard()}>Restart</Button>
         </Dialog>
+        <GoogleLoginDialog open={true}/>
     </div>
     )
 }
