@@ -20,9 +20,8 @@ export const StatusTab : React.FC<StatusProps> = ({ isBlack, status, restart }) 
     const styles = {
         status: {
             display: 'inline-flex',
-            width: '97%',
-            marginLeft: '4%',
             marginBottom: 5,
+            width: '100%'
         },
         white: {
             width: '30%',

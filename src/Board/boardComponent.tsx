@@ -28,7 +28,6 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     const styles = {
         board: {
             display: 'block',
-            width: '90%',
             backgroundImage: `url(${texture})`,
             backgroundPosition: 'center',
             backgroundRepeat: 'repeat',
@@ -40,8 +39,6 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             borderStyle: 'solid',
             borderColor: Colors.black,
             borderWidth: 1,
-            marginLeft: '5%',
-            marginRight: '5%',
             filter: `drop-shadow(2px 2px 2px ${Colors.black})`,
         },
         cemetery: {
@@ -50,7 +47,10 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     }
 
 
-    const _startBoard = [...startBoard].map((i) => [...i])
+    var _startBoard : Nullable<Piece>[][] = [...startBoard].map((i: Nullable<Piece>[]) => i.map((piece: Nullable<Piece>) => {
+        if(piece !== null) return Object.assign({},piece) 
+        else return null 
+    }))
     const [ boardValues, setBoardValues ] = useState<BoardValues>({
         board: new Board(_startBoard),
         selected:null,
@@ -580,6 +580,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     function resetBoard() {
         setEndDialog(false)
         setOpenDialog({open:false,isBlack:null,position:null})
+        _startBoard = [...startBoard].map((i) => [...i])
         setBoardValues({...boardValues, 
             board:new Board(_startBoard), 
             selected: null, 
