@@ -43,7 +43,6 @@ export const GoogleLoginDialog: React.FC<GoogleLoginDialogProps> = ({ open }) =>
                     buttonText="Sign in with Google"
                     onSuccess={onSuccess}
                     onFailure={onFailure}
-                    cookiePolicy={'http://localhost:3000/'}
                     isSignedIn={false}
                 />
             </div>
