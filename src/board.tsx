@@ -4,9 +4,9 @@ import { getColumnNumber } from './Board/utils'
 export class Board extends Array<Array<Nullable<Piece>>> {
 
     history : Nullable<Piece>[][][] = []
-    constructor(_startBoard: Nullable<Piece>[][]) {
-        super(..._startBoard)
-        this.history.push(_startBoard)
+    constructor(startBoard: Nullable<Piece>[][]) {
+        super(...startBoard)
+        this.history.push(startBoard)
     }
 
     getPieceFromPosition(position: Nullable<BoardPosition>) : Nullable<Piece> {

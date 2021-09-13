@@ -4,6 +4,9 @@ import {
     Pawn,
     Rook,
     King,
+    Knight,
+    Queen,
+    Bishop
 } from '../Pieces/pieces'
 import { Colors } from '../Constants/colors'
 import { BoardRow } from './board_row'
@@ -47,12 +50,37 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     }
 
 
-    var _startBoard : Nullable<Piece>[][] = [...startBoard].map((i: Nullable<Piece>[]) => i.map((piece: Nullable<Piece>) => {
-        if(piece !== null) return Object.assign({},piece) 
-        else return null 
-    }))
+
+    function createNewBoard() : Board {
+        const _startBoard : Nullable<Piece>[][] = startBoard.slice().map((i: Nullable<Piece>[]) => i.slice().map((piece: Nullable<Piece>) => {
+            if(piece !== null) {
+                if(piece instanceof Pawn) {
+                    return new Pawn(piece.isBlack)
+                }
+                if(piece instanceof Rook) {
+                    return new Rook(piece.isBlack)
+                }
+                if(piece instanceof Knight) {
+                    return new Knight(piece.isBlack)
+                }
+                if(piece instanceof Bishop) {
+                    return new Bishop(piece.isBlack)
+                }
+                if(piece instanceof Queen) {
+                    return new Queen(piece.isBlack)
+                }
+                if(piece instanceof King) {
+                    return new King(piece.isBlack)
+                }
+                return null
+            } 
+            else return null 
+        }))
+        return new Board(_startBoard)
+    }
+
     const [ boardValues, setBoardValues ] = useState<BoardValues>({
-        board: new Board(_startBoard),
+        board: createNewBoard(),
         selected:null,
         movements:[],
         killMovements: [],
@@ -320,14 +348,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             }
         }
 
-        if(piece instanceof Pawn) {
-            if(piece.isBlack && positionB.row === 1 ) {
-                setOpenDialog({open: true, isBlack: true, position: positionB})
-            }
-            if(!piece.isBlack && positionB.row === 8) {
-                setOpenDialog({open: true, isBlack: false, position: positionB})
-            }
-        }
+        checkPawnSwitch(piece!, positionB)
 
         boardValues.check = getCheck(board)
 
@@ -458,7 +479,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
                 }
             } else {
                 // there is a selected piece, and user selected a movement square
-                canMove(selectedPiece, position)
+                canMove(newBoardValues.selected!, position)
             }
         }
     }
@@ -498,14 +519,28 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
                 isBlackTurn: newBoardValues.isBlackTurn,
                 endGame: newBoardValues.endGame
             })
+
+            checkPawnSwitch(selectedPiece!,position)
+
             return true
         }
         return false
 
     }
 
+    function checkPawnSwitch(piece: Piece, position: BoardPosition) {
+        if(piece instanceof Pawn) {
+            if(piece.isBlack && position.row === 1 ) {
+                setOpenDialog({open: true, isBlack: true, position: position})
+            }
+            if(!piece.isBlack && position.row === 8) {
+                setOpenDialog({open: true, isBlack: false, position: position})
+            }
+        }
+    }
+
     function canMove(
-        piece: Nullable<Piece>, 
+        selectedPosition: Nullable<BoardPosition>, 
         position: Nullable<BoardPosition>
     ) {
         if(boardValues.movements === null) return
@@ -517,7 +552,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         }
         )
         if(movementMatch.length > 0) {
-            movePiece(boardValues!.selected!, position!)
+            movePiece(selectedPosition!, position!)
         }
     }
 
@@ -580,9 +615,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     function resetBoard() {
         setEndDialog(false)
         setOpenDialog({open:false,isBlack:null,position:null})
-        _startBoard = [...startBoard].map((i) => [...i])
         setBoardValues({...boardValues, 
-            board:new Board(_startBoard), 
+            board: createNewBoard(), 
             selected: null, 
             movements: [], 
             killMovements: [], 
@@ -597,8 +631,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         setOpenDialog({open:false, isBlack:null, position:null})
         boardValues.board.removePieceFromPosition(position)
         boardValues.board.addPieceToPosition(piece, position)
+        boardValues.check = getCheck(boardValues.board)
         setBoardValues({...boardValues})
-        console.log(`${piece} was selected in dialog`)
     }
 
 
@@ -612,7 +646,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
                 width: '8%',
                 justifyContent: 'center', 
                 alignSelf: 'center',
-                paddingTop: rowNumber === 8 ? 40 : 0 
+                paddingTop: rowNumber === 8 ? 50 : 0,
+                filter: `drop-shadow(2px,2px,2px, ${Colors.shadow_gray})`
                 }}>{rowNumber}</div>
             <BoardRow 
                 rowNumber={rowNumber} 
