@@ -134,6 +134,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             setEndDialog(true)
         } 
         getMovements()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     },[boardValues, movements])
 
     //Mechanics
@@ -450,6 +451,17 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         newBoardValues.movements = []
         newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
         newBoardValues.killMovements = []
+
+        //New way
+        postMovement({ 
+            from: `${rookPosition.column}${rookPosition.row}`,
+            to: `${newRookPosition.column}${newRookPosition.row}`,
+        })
+        postMovement({ 
+            from: `${kingPosition.column}${kingPosition.row}`,
+            to: `${newKingPosition.column}${newKingPosition.row}`,
+        })
+
         setBoardValues({...boardValues,
             board: newBoardValues.board,
             selected: newBoardValues.selected,
