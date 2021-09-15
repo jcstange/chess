@@ -22,6 +22,8 @@ import useIsMax from '../windowDimension'
 import '@fontsource/roboto'
 import texture from '../Images/darkTexture.jpeg'
 import { GoogleLoginDialog } from '../Dialogs/googleLogin'
+import axios from 'axios'
+import * as dotenv from 'dotenv'
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
@@ -93,12 +95,46 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
 
     const [ openDialog, setOpenDialog ] = useState<IPawnSwitch>({open:false, isBlack: null, position:null})
     const [ endDialog, setEndDialog ] = useState<boolean>(false)
+    const [ movements, setMovements ] = useState<BoardMovement[]>([])
+
+    dotenv.config({path: '../.env'})
+
+    //const getMovements = () => axios.get(`${process.env.BASE_URL}/movements`)
+    const getMovements = () => axios.get(`http://localhost:8080/movements`)
+        .then((response) => {
+            console.table(response.data)
+            const newMovements = response.data as BoardMovement[]
+            if(newMovements.length !== movements.length){
+                setMovements(newMovements)
+            }
+        })
+        .catch((error) => {
+            console.error("Error fetching movements", error)
+        })
+    
+    //const postMovement = (_movement: BoardMovement) => axios.post(`${process.env.BASE_URL}/movements`, _movement)
+    const postMovement = (_movement: BoardMovement) => axios.post(`http://localhost:8080/movements`, _movement)
+        .then((response) => {
+            console.log(`Successfully added movement`)
+        })
+        .catch((error) => {
+            console.error(error)
+        })
+
+    const resetMovements = ()  => axios.delete(`http://localhost:8080/movements`)
+        .then((response) => {
+            console.log('Successfully delete movements')
+        })
+        .catch((error) => {
+            console.error(error)
+        })
 
     useEffect(() => {
         if(boardValues.endGame) {
             setEndDialog(true)
         } 
-    },[boardValues])
+        getMovements()
+    },[boardValues, movements])
 
     //Mechanics
 
@@ -334,6 +370,11 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         }
 
         board.addPieceToPosition(piece!, positionB)
+
+        postMovement({ 
+            from: `${positionA.column}${positionA.row}`,
+            to: `${positionB.column}${positionB.row}`,
+        })
 
         // does check still exist
         if(boardValues.check !== null) {
@@ -616,6 +657,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     function resetBoard() {
         setEndDialog(false)
         setOpenDialog({open:false,isBlack:null,position:null})
+        resetMovements()
         setBoardValues({...boardValues, 
             board: createNewBoard(), 
             selected: null, 
@@ -694,7 +736,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             <div style={{padding:20}}>Game over - {boardValues.isBlackTurn ? "Black" : "White"} won</div>
             <Button onClick={() => resetBoard()}>Restart</Button>
         </Dialog>
-        <GoogleLoginDialog open={true}/>
     </div>
     )
 }
+//<GoogleLoginDialog open={true}/>

@@ -14,3 +14,8 @@ type IPawnSwitch = {
     isBlack: Nullable<boolean>,
     position: Nullable<BoardPosition>
 }
+
+type BoardMovement = {
+    from: string,
+    to: string
+}
