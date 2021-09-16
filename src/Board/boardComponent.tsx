@@ -24,11 +24,14 @@ import texture from '../Images/darkTexture.jpeg'
 import { GoogleLoginDialog } from '../Dialogs/googleLogin'
 import axios from 'axios'
 import * as dotenv from 'dotenv'
+import { moveSyntheticComments } from 'typescript'
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
     startBoard: Nullable<Piece>[][] 
 }
+
+
 export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) => {
     const isMaxWidth: boolean = useIsMax()
     const styles = {
@@ -96,21 +99,22 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     const [ openDialog, setOpenDialog ] = useState<IPawnSwitch>({open:false, isBlack: null, position:null})
     const [ endDialog, setEndDialog ] = useState<boolean>(false)
     const [ movements, setMovements ] = useState<BoardMovement[]>([])
+    const [ sseStarted, setSseStarted ] = useState<boolean>(false)
 
     dotenv.config({path: '../.env'})
 
     //const getMovements = () => axios.get(`${process.env.BASE_URL}/movements`)
-    const getMovements = () => axios.get(`http://localhost:8080/movements`)
-        .then((response) => {
-            console.table(response.data)
-            const newMovements = response.data as BoardMovement[]
-            if(newMovements.length !== movements.length){
-                setMovements(newMovements)
-            }
-        })
-        .catch((error) => {
-            console.error("Error fetching movements", error)
-        })
+    //const getMovements = () => axios.get(`http://localhost:8080/movements`)
+    //    .then((response) => {
+    //        console.table(response.data)
+    //        const newMovements = response.data as BoardMovement[]
+    //        if(newMovements.length !== movements.length){
+    //            setMovements(newMovements)
+    //        }
+    //    })
+    //    .catch((error) => {
+    //        console.error("Error fetching movements", error)
+    //    })
     
     //const postMovement = (_movement: BoardMovement) => axios.post(`${process.env.BASE_URL}/movements`, _movement)
     const postMovement = (_movement: BoardMovement) => axios.post(`http://localhost:8080/movements`, _movement)
@@ -128,14 +132,49 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         .catch((error) => {
             console.error(error)
         })
+    
+    
 
     useEffect(() => {
         if(boardValues.endGame) {
             setEndDialog(true)
         } 
-        getMovements()
+        if(!sseStarted) {
+            const eventSource = new EventSource(`http://localhost:8080/sse`)
+            eventSource.addEventListener("message", (event) => {
+                try{
+                    const movements = JSON.parse(event.data) as BoardMovement[]
+                    if(movements.length === 0) {
+                        setMovements([])
+                        resetBoard()
+                        return
+                    }
+                    const eventLastMove: BoardMovement = movements[movements.length - 1]
+                    const positionA: BoardPosition = { 
+                        column:eventLastMove.from[0], 
+                        row: parseInt(eventLastMove.from[1]) 
+                    }
+                    const positionB: BoardPosition = { 
+                        column:eventLastMove.to[0], 
+                        row: parseInt(eventLastMove.to[1]) 
+                    }
+                    const piece1 = boardValues.board.getPieceFromPosition(positionA)
+                    const piece2 = boardValues.board.getPieceFromPosition(positionB)
+                    if(piece1 && piece2) {
+                        killMove(positionA, positionB)
+                    } else {
+                        movePiece(positionA,positionB)
+                    }
+                    setMovements(movements)
+                } catch {
+
+                }
+            })
+            setSseStarted(true)
+        }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[boardValues, movements])
+    },[boardValues])
+    //},[boardValues, movements])
 
     //Mechanics
 
@@ -358,7 +397,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
 
     function movePiece(
         positionA: BoardPosition, 
-        positionB: BoardPosition
+        positionB: BoardPosition,
     ) {
         const board : Board = boardValues.board
         const piece : Nullable<Piece> = board.getPieceFromPosition(positionA)
@@ -372,10 +411,6 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
 
         board.addPieceToPosition(piece!, positionB)
 
-        postMovement({ 
-            from: `${positionA.column}${positionA.row}`,
-            to: `${positionB.column}${positionB.row}`,
-        })
 
         // does check still exist
         if(boardValues.check !== null) {
@@ -527,7 +562,14 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
                 } else {
 
                     // if it is a kill move
-                    if(killMove(newBoardValues, position)) {
+                    const isKillMove: boolean = newBoardValues.killMovements.filter((i) => 
+            i?.column === position.column && i.row === position.row).length > 0
+                    if(isKillMove){
+                        postMovement({ 
+                            from: `${newBoardValues.selected!.column}${newBoardValues.selected!.row}`,
+                            to: `${position!.column}${position!.row}`,
+                        })
+                        //killMove(newBoardValues.selected!, position)
                         return
                     }
                 }
@@ -538,48 +580,44 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         }
     }
 
+    function addPieceToCemetery() {
+        
+    }
+
     function killMove(
-        newBoardValues: BoardValues, 
-        position: BoardPosition
+        positionA: BoardPosition, 
+        positionB: BoardPosition
     ) {
-        const selectedPiece = newBoardValues.board.getPieceFromPosition(newBoardValues.selected)
-        const isKillMove: boolean = newBoardValues.killMovements.filter((i) => 
-            i?.column === position.column && i.row === position.row).length > 0
-        if(isKillMove) {
-            const selected = newBoardValues!.selected!
-            const deadPiece = newBoardValues.board.getPieceFromPosition(position)
+        const newBoardValues = {...boardValues}
+        const killerPiece = newBoardValues.board.getPieceFromPosition(positionA)
+        const deadPiece = newBoardValues.board.getPieceFromPosition(positionB)
 
-            // add to cemetery
-            newBoardValues.cemetery.push(newBoardValues.board.getPieceFromPosition(position)!)
-            // delete piece
-            newBoardValues.board.removePieceFromPosition(selected)
-            // remove selected piece 
-            newBoardValues.selected = null
-            // move piece to killed piece position 
+        // add to cemetery
+        newBoardValues.cemetery.push(newBoardValues.board.getPieceFromPosition(positionB)!)
+        // delete piece
+        newBoardValues.board.removePieceFromPosition(positionA)
+        // remove selected piece 
+        newBoardValues.selected = null
+        // move piece to killed piece position 
 
-            newBoardValues.board.addPieceToPosition(selectedPiece!, position)
-            newBoardValues.movements = []
-            newBoardValues.killMovements = []
-            newBoardValues.check = getCheck(newBoardValues.board)
-            newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
-            newBoardValues.endGame = deadPiece instanceof King
-            setBoardValues({...boardValues,
-                board: newBoardValues.board,
-                selected: newBoardValues.selected,
-                movements: newBoardValues.movements,
-                killMovements: newBoardValues.killMovements,
-                check: newBoardValues.check,
-                cemetery: newBoardValues.cemetery,
-                isBlackTurn: newBoardValues.isBlackTurn,
-                endGame: newBoardValues.endGame
-            })
+        newBoardValues.board.addPieceToPosition(killerPiece!, positionB)
+        newBoardValues.movements = []
+        newBoardValues.killMovements = []
+        newBoardValues.check = getCheck(newBoardValues.board)
+        newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
+        newBoardValues.endGame = deadPiece instanceof King
+        setBoardValues({...boardValues,
+            board: newBoardValues.board,
+            selected: newBoardValues.selected,
+            movements: newBoardValues.movements,
+            killMovements: newBoardValues.killMovements,
+            check: newBoardValues.check,
+            cemetery: newBoardValues.cemetery,
+            isBlackTurn: newBoardValues.isBlackTurn,
+            endGame: newBoardValues.endGame
+        })
 
-            checkPawnSwitch(selectedPiece!,position)
-
-            return true
-        }
-        return false
-
+        checkPawnSwitch(killerPiece!, positionB)
     }
 
     function checkPawnSwitch(piece: Piece, position: BoardPosition) {
@@ -606,7 +644,11 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         }
         )
         if(movementMatch.length > 0) {
-            movePiece(selectedPosition!, position!)
+            postMovement({ 
+                from: `${selectedPosition!.column}${selectedPosition!.row}`,
+                to: `${position!.column}${position!.row}`,
+            })
+            //movePiece(selectedPosition!, position!)
         }
     }
 
@@ -669,7 +711,9 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     function resetBoard() {
         setEndDialog(false)
         setOpenDialog({open:false,isBlack:null,position:null})
-        resetMovements()
+        if(movements.length !== 0) {
+            resetMovements()
+        }
         setBoardValues({...boardValues, 
             board: createNewBoard(), 
             selected: null, 
