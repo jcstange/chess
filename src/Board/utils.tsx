@@ -42,5 +42,6 @@ export type BoardValues = {
     isBlackTurn: boolean
     check: Nullable<[ BoardPosition, BoardPosition ]>,
     cemetery: Piece[],
-    endGame: boolean
+    endGame: boolean,
+    iterations: number
 } 

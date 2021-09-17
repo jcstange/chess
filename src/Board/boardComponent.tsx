@@ -24,7 +24,7 @@ import texture from '../Images/darkTexture.jpeg'
 import { GoogleLoginDialog } from '../Dialogs/googleLogin'
 import axios from 'axios'
 import * as dotenv from 'dotenv'
-import { moveSyntheticComments } from 'typescript'
+import { BookmarkBorder } from '@material-ui/icons'
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
@@ -93,9 +93,12 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         isBlackTurn: false,
         check: null,
         cemetery: [],
-        endGame: false
+        endGame: false,
+        iterations: 0
+
     })
 
+    const [ multiplayer, setMultiplayer ] = useState<boolean>(true)
     const [ openDialog, setOpenDialog ] = useState<IPawnSwitch>({open:false, isBlack: null, position:null})
     const [ endDialog, setEndDialog ] = useState<boolean>(false)
     const [ movements, setMovements ] = useState<BoardMovement[]>([])
@@ -132,7 +135,42 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         .catch((error) => {
             console.error(error)
         })
+
     
+    function startEventSource() {
+        const eventSource = new EventSource(`http://localhost:8080/sse`)
+        eventSource.addEventListener("message", (event) => {
+            console.log(`isBlackTurn SSE: ${boardValues.isBlackTurn}`)
+            try{
+                const movements = JSON.parse(event.data) as BoardMovement[]
+                console.table(movements)
+                if(movements.length === 0) {
+                    setMovements([])
+                    resetBoard()
+                    return
+                }
+                const eventLastMove: BoardMovement = movements[movements.length - 1]
+                const positionA: BoardPosition = { 
+                    column:eventLastMove.from[0], 
+                    row: parseInt(eventLastMove.from[1]) 
+                }
+                const positionB: BoardPosition = { 
+                    column:eventLastMove.to[0], 
+                    row: parseInt(eventLastMove.to[1]) 
+                }
+                const piece1 = boardValues.board.getPieceFromPosition(positionA)
+                const piece2 = boardValues.board.getPieceFromPosition(positionB)
+                if(piece1 && piece2) {
+                    killMove(positionA, positionB)
+                } else {
+                    movePiece(positionA,positionB)
+                }
+                setMovements(movements)
+            } catch {
+
+            }
+        })
+    }
     
 
     useEffect(() => {
@@ -140,40 +178,10 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             setEndDialog(true)
         } 
         if(!sseStarted) {
-            const eventSource = new EventSource(`http://localhost:8080/sse`)
-            eventSource.addEventListener("message", (event) => {
-                try{
-                    const movements = JSON.parse(event.data) as BoardMovement[]
-                    if(movements.length === 0) {
-                        setMovements([])
-                        resetBoard()
-                        return
-                    }
-                    const eventLastMove: BoardMovement = movements[movements.length - 1]
-                    const positionA: BoardPosition = { 
-                        column:eventLastMove.from[0], 
-                        row: parseInt(eventLastMove.from[1]) 
-                    }
-                    const positionB: BoardPosition = { 
-                        column:eventLastMove.to[0], 
-                        row: parseInt(eventLastMove.to[1]) 
-                    }
-                    const piece1 = boardValues.board.getPieceFromPosition(positionA)
-                    const piece2 = boardValues.board.getPieceFromPosition(positionB)
-                    if(piece1 && piece2) {
-                        killMove(positionA, positionB)
-                    } else {
-                        movePiece(positionA,positionB)
-                    }
-                    setMovements(movements)
-                } catch {
-
-                }
-            })
+            startEventSource()
             setSseStarted(true)
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[boardValues])
+    },[boardValues, sseStarted, movements, openDialog, endDialog ])
     //},[boardValues, movements])
 
     //Mechanics
@@ -399,47 +407,47 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         positionA: BoardPosition, 
         positionB: BoardPosition,
     ) {
-        const board : Board = boardValues.board
-        const piece : Nullable<Piece> = board.getPieceFromPosition(positionA)
+        console.log("movePiece")
+        const newBoardValues = {...boardValues}
+        const piece : Nullable<Piece> = newBoardValues.board.getPieceFromPosition(positionA)
 
-        board.removePieceFromPosition(positionA)
+        newBoardValues.board.removePieceFromPosition(positionA)
 
         // remove first move from the pawn / king / rook        
         if(piece !== null && piece.movement !== null) {
             piece.movement.firstMove = null 
         }
 
-        board.addPieceToPosition(piece!, positionB)
-
+        newBoardValues.board.addPieceToPosition(piece!, positionB)
 
         // does check still exist
-        if(boardValues.check !== null) {
-            const checkPiece = board.getPieceFromPosition(boardValues.check[0])
+        if(newBoardValues.check !== null) {
+            const checkPiece = newBoardValues.board.getPieceFromPosition(newBoardValues.check[0])
             if(checkPiece !== null) {
-                getMovesForPiece(checkPiece, boardValues.check[0])[1].forEach((i) => {
-                    const killPiece = board.getPieceFromPosition(i)
+                getMovesForPiece(checkPiece, newBoardValues.check[0])[1].forEach((i) => {
+                    const killPiece = newBoardValues.board.getPieceFromPosition(i)
                     if(killPiece instanceof King) {
-                        boardValues.endGame = true
+                        newBoardValues.endGame = true
                     }
                 })
-                if(boardValues.endGame === false) boardValues.check = null
+                if(newBoardValues.endGame === false) newBoardValues.check = null
             }
         }
 
         checkPawnSwitch(piece!, positionB)
 
-        boardValues.check = getCheck(board)
+        newBoardValues.check = getCheck(newBoardValues.board)
+        console.log(`isBlackTurn: ${newBoardValues.isBlackTurn}`)
 
-        setBoardValues({...boardValues, 
-            board: board, 
-            selected: null, 
-            movements: [], 
-            killMovements: [],
-            check: boardValues.check,
-            endGame: boardValues.endGame,
-            isBlackTurn: !boardValues.isBlackTurn,
+        newBoardValues.selected = null
+        newBoardValues.movements = [] 
+        newBoardValues.killMovements = [] 
+        newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
 
-        })
+        
+        console.log(`isBlackTurn after change: ${newBoardValues.isBlackTurn}`)
+
+        setBoardValues(newBoardValues)
     }
 
     function castle(kingPosition: BoardPosition, rookPosition: BoardPosition) {
@@ -565,11 +573,12 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
                     const isKillMove: boolean = newBoardValues.killMovements.filter((i) => 
             i?.column === position.column && i.row === position.row).length > 0
                     if(isKillMove){
-                        postMovement({ 
-                            from: `${newBoardValues.selected!.column}${newBoardValues.selected!.row}`,
-                            to: `${position!.column}${position!.row}`,
-                        })
-                        //killMove(newBoardValues.selected!, position)
+                        if(multiplayer) {
+                            postMovement({ 
+                                from: `${newBoardValues.selected!.column}${newBoardValues.selected!.row}`,
+                                to: `${position!.column}${position!.row}`,
+                            })
+                        } else killMove(newBoardValues.selected!, position)
                         return
                     }
                 }
@@ -580,8 +589,11 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         }
     }
 
-    function addPieceToCemetery() {
-        
+    function addPieceToCemetery(position: BoardPosition) {
+        var newBoardValues = {...boardValues}
+        newBoardValues.cemetery.push(newBoardValues.board.getPieceFromPosition(position)!)
+        newBoardValues.board.removePieceFromPosition(position)
+        setBoardValues({...newBoardValues})
     }
 
     function killMove(
@@ -592,10 +604,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         const killerPiece = newBoardValues.board.getPieceFromPosition(positionA)
         const deadPiece = newBoardValues.board.getPieceFromPosition(positionB)
 
-        // add to cemetery
-        newBoardValues.cemetery.push(newBoardValues.board.getPieceFromPosition(positionB)!)
-        // delete piece
-        newBoardValues.board.removePieceFromPosition(positionA)
+        addPieceToCemetery(positionA)
         // remove selected piece 
         newBoardValues.selected = null
         // move piece to killed piece position 
@@ -604,7 +613,6 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         newBoardValues.movements = []
         newBoardValues.killMovements = []
         newBoardValues.check = getCheck(newBoardValues.board)
-        newBoardValues.isBlackTurn = !newBoardValues.isBlackTurn
         newBoardValues.endGame = deadPiece instanceof King
         setBoardValues({...boardValues,
             board: newBoardValues.board,
@@ -613,7 +621,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
             killMovements: newBoardValues.killMovements,
             check: newBoardValues.check,
             cemetery: newBoardValues.cemetery,
-            isBlackTurn: newBoardValues.isBlackTurn,
+            isBlackTurn: !newBoardValues.isBlackTurn,
             endGame: newBoardValues.endGame
         })
 
@@ -644,11 +652,12 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
         }
         )
         if(movementMatch.length > 0) {
-            postMovement({ 
-                from: `${selectedPosition!.column}${selectedPosition!.row}`,
-                to: `${position!.column}${position!.row}`,
-            })
-            //movePiece(selectedPosition!, position!)
+            if(multiplayer) {
+                postMovement({ 
+                    from: `${selectedPosition!.column}${selectedPosition!.row}`,
+                    to: `${position!.column}${position!.row}`,
+                })
+            } else movePiece(selectedPosition!, position!)
         }
     }
 
@@ -711,27 +720,29 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({ startBoard }) =>
     function resetBoard() {
         setEndDialog(false)
         setOpenDialog({open:false,isBlack:null,position:null})
-        if(movements.length !== 0) {
-            resetMovements()
-        }
-        setBoardValues({...boardValues, 
-            board: createNewBoard(), 
-            selected: null, 
-            movements: [], 
-            killMovements: [], 
-            check: null,
-            isBlackTurn: false,
-            cemetery: [],
-            endGame: false
-        })
+        var newBoardValues = {...boardValues}
+        newBoardValues.board = createNewBoard()
+        newBoardValues.selected = null
+        newBoardValues.movements = []
+        newBoardValues.killMovements = []
+        newBoardValues.check = null
+        newBoardValues.isBlackTurn = false 
+        newBoardValues.cemetery = []
+        newBoardValues.endGame = false 
+    
+        setBoardValues(newBoardValues)
+
+        setMovements([])
+        resetMovements()
     }
 
     function pawnSwitchPiece(piece: Piece, position: BoardPosition) {
         setOpenDialog({open:false, isBlack:null, position:null})
-        boardValues.board.removePieceFromPosition(position)
-        boardValues.board.addPieceToPosition(piece, position)
-        boardValues.check = getCheck(boardValues.board)
-        setBoardValues({...boardValues})
+        var newBoardValues = {...boardValues}
+        newBoardValues.board.removePieceFromPosition(position)
+        newBoardValues.board.addPieceToPosition(piece, position)
+        newBoardValues.check = getCheck(boardValues.board)
+        setBoardValues(newBoardValues)
     }
 
 
