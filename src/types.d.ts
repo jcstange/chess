@@ -1,5 +1,5 @@
 type BoardPosition = {
-    column: string,
+    column: string
     row: number
 }
 
@@ -10,12 +10,13 @@ type Castle = {
 }
 
 type IPawnSwitch = {
-    open: boolean,
-    isBlack: Nullable<boolean>,
+    open: boolean
+    isBlack: Nullable<boolean>
     position: Nullable<BoardPosition>
 }
 
 type BoardMovement = {
-    from: string,
+    type: string
+    from: string
     to: string
 }

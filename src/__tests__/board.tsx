@@ -1,27 +1,26 @@
+import { render, cleanup, waitFor, fireEvent } from "@testing-library/react"
+import { BoardComponent } from "../Board/boardComponent"
+import { Board } from "../board"
+import { startBoard, BoardValues, createBoardPosition } from "../Board/utils"
+import "@testing-library/jest-dom"
+import { Colors } from "../Constants/colors"
 
-import { render, cleanup, waitFor, fireEvent } from '@testing-library/react'
-import { BoardComponent } from '../Board/boardComponent'
-import { Board } from '../board'
-import { startBoard, BoardValues, createBoardPosition } from '../Board/utils'
-import '@testing-library/jest-dom'
-import { Colors } from '../Constants/colors'
+beforeAll(() => cleanup)
 
-beforeAll(()=> cleanup)
-
-test('restart game',  async () => {
+test("restart game", async () => {
     // That's the way to copy an array
     const _startBoard = [...startBoard].map((i) => [...i])
-    const boardValues : BoardValues = {
+    const boardValues: BoardValues = {
         board: new Board(startBoard),
-        selected:null,
-        movements:[],
+        selected: null,
+        movements: [],
         killMovements: [],
         isBlackTurn: false,
         check: null,
         cemetery: [],
-        endGame: false
+        endGame: false,
     }
-    const boardPosition : BoardPosition = createBoardPosition('A1')!
+    const boardPosition: BoardPosition = createBoardPosition("A1")!
     const piece = boardValues.board.getPieceFromPosition(boardPosition)
     boardValues.board.removePieceFromPosition(boardPosition)
     const { container } = render(<BoardComponent startBoard={startBoard} />)
@@ -31,26 +30,25 @@ test('restart game',  async () => {
     expect(piece).toBe(_startBoard[0][0])
 })
 
-
-test('select piece',  () => {
-    const { container } = render(<BoardComponent  startBoard={startBoard} />)
+test("select piece", () => {
+    const { container } = render(<BoardComponent startBoard={startBoard} />)
     let board = container.children[0].children[1]
     let boardRow = board.children[7].children[1]
     let square = boardRow.children[1].children[0]
     fireEvent.click(square)
 
-    expect(square).toHaveStyle({backgroundColor: Colors.selected_green})
+    expect(square).toHaveStyle({ backgroundColor: Colors.selected_green })
 })
 
-test('move piece',  () => {
-    const { container } = render(<BoardComponent  startBoard={startBoard} />)
+test("move piece", () => {
+    const { container } = render(<BoardComponent startBoard={startBoard} />)
     let board = container.children[0].children[1]
     //Select Knight
     let boardRowFrom = board.children[7].children[1]
     let squareFrom = boardRowFrom.children[1].children[0]
     fireEvent.click(squareFrom)
 
-    expect(squareFrom).toHaveStyle({backgroundColor: Colors.selected_green})
+    expect(squareFrom).toHaveStyle({ backgroundColor: Colors.selected_green })
 
     //Move piece and check if it was moved
     let boardRowTo = board.children[5].children[1]
