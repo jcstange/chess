@@ -123,6 +123,16 @@ export function createNewBoard(): Board {
     return new Board(_startBoard)
 }
 
+export enum MovementType {
+    Movement = "movement",
+    Kill = "kill",
+    Castle = "castle",
+    Rook = "rook",
+    Knight = "knight",
+    Bishop = "bishop",
+    Queen = "queen",
+}
+
 export function getPieceType(piece: Piece): string {
     var pieceType: string = ""
     if (piece instanceof Rook) {
@@ -138,14 +148,4 @@ export function getPieceType(piece: Piece): string {
         pieceType = MovementType.Queen
     }
     return pieceType
-}
-
-export enum MovementType {
-    Movement = "movement",
-    Kill = "kill",
-    Castle = "castle",
-    Rook = "rook",
-    Knight = "knight",
-    Bishop = "bishop",
-    Queen = "queen",
 }
