@@ -246,26 +246,17 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         if (piece instanceof Pawn) {
             if (piece.movement.firstMove !== null) {
                 piece.movement.firstMove.forEach((i) => {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     possibleMovements.push(movement[0])
                 })
             } else {
                 piece.movement.moves.forEach((i) => {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     possibleMovements.push(movement[0])
                 })
             }
             piece.movement.movesToKill?.forEach((i) => {
-                const movement: [
-                    Nullable<BoardPosition>,
-                    Nullable<BoardPosition>,
-                ] = addDirectionalMove(piece, position, i)
+                const movement = addDirectionalMove(piece, position, i)
                 if (movement[1] !== null) killMovements.push(movement[1])
             })
             return [possibleMovements, killMovements]
@@ -280,10 +271,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             if (i.h > 0 && i.v === 0) {
                 //right movements
                 if (!blockRight) {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     if (movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {
@@ -297,10 +285,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             if (i.h < 0 && i.v === 0) {
                 //left movements
                 if (!blockLeft) {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     if (movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {
@@ -314,10 +299,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             if (i.h === 0 && i.v > 0) {
                 //forward movements
                 if (!blockForward) {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     if (movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {
@@ -331,10 +313,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             if (i.h === 0 && i.v < 0) {
                 //backward movements
                 if (!blockBackward) {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     if (movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {
@@ -348,10 +327,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             if (i.h > 0 && i.v < 0) {
                 //left backward
                 if (piece.movement?.canJump || !blockBackwardRightDiagonal) {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     if (movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {
@@ -365,10 +341,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             if (i.h < 0 && i.v < 0) {
                 //right backward
                 if (piece.movement?.canJump || !blockBackwardLeftDiagonal) {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     if (movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {
@@ -382,10 +355,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             if (i.h > 0 && i.v > 0) {
                 //right forward
                 if (piece.movement?.canJump || !blockForwardRightDiagonal) {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     if (movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {
@@ -399,10 +369,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             if (i.h < 0 && i.v > 0) {
                 //left forward
                 if (piece.movement?.canJump || !blockForwardLeftDiagonal) {
-                    const movement: [
-                        Nullable<BoardPosition>,
-                        Nullable<BoardPosition>,
-                    ] = addDirectionalMove(piece, position, i)
+                    const movement = addDirectionalMove(piece, position, i)
                     if (movement[0] != null) {
                         possibleMovements.push(movement[0])
                     } else if (movement[1] != null) {

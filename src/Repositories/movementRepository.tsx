@@ -3,11 +3,13 @@ import axios from "axios"
 import * as dotenv from "dotenv"
 
 dotenv.config({ path: "../.env" })
+//const host = "http://localhost:8080"
+const host = "https://chess001.herokuapp.com"
 
 //const getMovements = () => axios.get(`${process.env.BASE_URL}/movements`)
 export function getMovements(onSuccess: (newMovements: BoardMovement[])=>void) {
     axios
-        .get(`http://localhost:8080/movements`)
+        .get(`${host}/movements`)
         .then((response) => {
             console.table(response.data)
             const newMovements = response.data as BoardMovement[]
@@ -19,10 +21,9 @@ export function getMovements(onSuccess: (newMovements: BoardMovement[])=>void) {
 
 }
 
-//const postMovement = (_movement: BoardMovement) => axios.post(`${process.env.BASE_URL}/movements`, _movement)
 export function postMovement(movement: BoardMovement){
     axios
-        .post(`http://localhost:8080/movements`, movement)
+        .post(`${host}/movements`, movement)
         .then((response) => {
             console.log(`Successfully added movement`)
         })
@@ -34,7 +35,7 @@ export function postMovement(movement: BoardMovement){
 
 export function resetMovements(onSuccess: () => void) {
     axios
-        .delete(`http://localhost:8080/movements`)
+        .delete(`${host}/movements`)
         .then((response) => {
             onSuccess()
             console.log("Successfully delete movements")
@@ -44,14 +45,11 @@ export function resetMovements(onSuccess: () => void) {
         })
 }
 
-
-
 export function startEventSource(listener: (data: number) => void) {
-    const eventSource = new EventSource(`http://localhost:8080/sse`)
+    const eventSource = new EventSource(`${host}/sse`)
     eventSource.addEventListener("message", (event: MessageEvent) => {
         try {
             listener(parseInt(event.data))
         } catch {}
     })
 }
-
