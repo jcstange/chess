@@ -94,9 +94,6 @@ export const StatusTab: React.FC<StatusProps> = ({
     }
     return (
         <div style={styles.status}>
-            <div style={styles.white}>White Turn</div>
-            <div style={styles.black}>Black Turn</div>
-            <div style={styles.check}>Check</div>
             <div style={styles.resetButtom}>
                 <Replay
                     style={{ color: Colors.white, alignSelf: "end" }}

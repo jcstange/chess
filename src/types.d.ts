@@ -20,3 +20,8 @@ type BoardMovement = {
     from: string
     to: string
 }
+
+type KillMovements = Nullable<BoardPosition>[]
+type Movements = Nullable<BoardPosition>[]
+type KillMovement = Nullable<BoardPosition>
+type Movement = Nullable<BoardPosition>

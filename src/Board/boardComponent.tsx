@@ -34,38 +34,79 @@ import {
     postMovement, 
     resetMovements 
 } from '../Repositories/movementRepository'
+import styled from 'styled-components'
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
-    startBoard: Nullable<Piece>[][]
+    startBoard: Nullable<Piece>[][],
+    _blackTurn: (backTurn: boolean)=>void
 }
 
-//TODO: Set reloaded browser to game state
 
 export const BoardComponent: React.FC<BoardComponentProps> = ({
     startBoard,
+    _blackTurn
 }) => {
     const isMaxWidth: boolean = useIsMax()
-    const styles = {
-        board: {
-            display: "block",
-            backgroundImage: `url(${texture})`,
-            backgroundPosition: "center",
-            backgroundRepeat: "repeat",
-            paddingBottom: isMaxWidth ? 50 : "5vw",
-            paddingRight: isMaxWidth ? 50 : "5vw",
-            color: Colors.white,
-            fontFamily: "Roboto",
-            borderRadius: 5,
-            borderStyle: "solid",
-            borderColor: Colors.black,
-            borderWidth: 1,
-            filter: `drop-shadow(2px 2px 2px ${Colors.black})`,
-        },
-        cemetery: {
-            marginTop: 30,
-        },
-    }
+    const blackTurn = useRef<boolean>(false)
+
+    const Board = styled.div`
+        display: block;
+        background-image: url(${texture});
+        background-position: center;
+        background-repeat: "repeat";
+        padding-bottom: ${isMaxWidth ? "50px" : "5vw"};
+        padding-right: ${isMaxWidth ? "50px" : "5vw"};
+        color: ${Colors.white};
+        font-family: "Roboto";
+        border-radius: 5px;
+        border-style: solid;
+        border-color: ${Colors.black};
+        border-width: 1px;
+        filter: drop-shadow(2px 2px 2px ${Colors.shadow_gray});
+    `
+
+    const BoardWrapper = styled.div`
+        display: inline-block;
+        width: 100%;
+        max-width: 1000px;
+        justify-content: center;
+        align-items: center;
+        margin-left: 50%;
+        transform: translate(-50%,0%);
+    `
+
+    const TurnBar = styled.div`
+        width: 100%;
+        height: 5px;
+        margin-top: 5px;
+        margin-bottom: 5px;
+        border-radius: 5px;
+        filter: drop-shadow(2px 2px 4px ${Colors.shadow_gray});
+        background-color: yellow;
+        transition: opacity 3s;
+    `
+
+    const TurnBarWhite = styled(TurnBar)`
+        opacity: ${blackTurn.current ? 0 : 1};
+    `
+    const TurnBarBlack = styled(TurnBar)`
+        opacity: ${blackTurn.current ? 1 : 0};
+    `
+
+    const MultiplayerDialog = styled(Dialog)`
+        width: 100%; 
+        padding: 20px;
+        margin: 20px;
+    `
+    const MultiplayerButton = styled(Button)`
+        width: 100%; 
+        padding: 20px;
+        margin: 20px;
+        background-color: ${Colors.move_blue};
+        border-radius: 5px;
+        filter: drop-shadow(2px 2px 4px ${Colors.shadow_gray});
+    `
 
     const [boardValues, setBoardValues] = useState<BoardValues>({
         board: createNewBoard(),
@@ -77,8 +118,9 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         endGame: false,
         iterations: 0,
     })
+    const boardValuesRef = useRef<BoardValues>(boardValues)
     const [multiplayer, setMultiplayer] = useState<boolean>(false)
-    const [multiplayerDialog, setMultiplayerDialog] = useState<boolean>(true)
+    const [multiplayerDialog, setMultiplayerDialog] = useState<boolean>(boardValues.iterations === 0)
     const [openDialog, setOpenDialog] = useState<IPawnSwitch>({
         open: false,
         isBlack: null,
@@ -87,11 +129,10 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
     const [endDialog, setEndDialog] = useState<boolean>(false)
     const movements = useRef<BoardMovement[]>([])
     const [sseStarted, setSseStarted] = useState<boolean>(false)
-    const blackTurn = useRef<boolean>(false)
     const loading = useRef<boolean>(false)
 
     useEffect(() => {
-        if (boardValues.endGame) {
+        if (boardValuesRef.current.endGame) {
             setEndDialog(true)
         }
         if (!sseStarted) {
@@ -100,6 +141,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             } )
             setSseStarted(true)
         }
+        _blackTurn(blackTurn.current)
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [boardValues])
 
@@ -172,10 +214,10 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
 
         // search for kill movements
         piecePositions.forEach((i: BoardPosition) => {
-            const piece = boardValues.board.getPieceFromPosition(i)
+            const piece = board.getPieceFromPosition(i)
             const moves = getMovesForPiece(piece, i)
             moves[1].forEach((j) => {
-                const killPiece = boardValues.board.getPieceFromPosition(j)
+                const killPiece = board.getPieceFromPosition(j)
                 if (killPiece instanceof King) {
                     check = [i, j!]
                 }
@@ -187,11 +229,11 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
     function getMovesForPiece(
         piece: Nullable<Piece>,
         position: BoardPosition,
-    ): [Nullable<BoardPosition>[], Nullable<BoardPosition>[]] {
+    ): [Movements, KillMovements] {
         if (piece === null) return [[], []]
         if (piece.movement === null) return [[], []]
-        let possibleMovements: Nullable<BoardPosition>[] = []
-        let killMovements: Nullable<BoardPosition>[] = []
+        let possibleMovements: Movements = []
+        let killMovements: KillMovements = []
         let blockForward = false
         let blockBackward = false
         let blockLeft = false
@@ -379,7 +421,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         selectedPosition: Nullable<BoardPosition>,
         position: Nullable<BoardPosition>,
     ) {
-        var newBoardValues = { ...boardValues }
+        var newBoardValues = { ...boardValuesRef.current }
         if (newBoardValues.movements === null) return
         const movementMatch = newBoardValues.movements.filter((i) => {
             if (i?.column !== null && i?.row !== null) {
@@ -408,8 +450,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
     }
 
     function movePiece(positionA: BoardPosition, positionB: BoardPosition) {
-        console.log("movePiece")
-        const newBoardValues = { ...boardValues }
+        const newBoardValues = { ...boardValuesRef.current }
         const piece: Nullable<Piece> =
             newBoardValues.board.getPieceFromPosition(positionA)
 
@@ -454,11 +495,12 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
 
         blackTurn.current = !blackTurn.current
 
+        boardValuesRef.current = newBoardValues
         setBoardValues(newBoardValues)
     }
 
     function killMove(positionA: BoardPosition, positionB: BoardPosition) {
-        const newBoardValues = { ...boardValues }
+        const newBoardValues = { ...boardValuesRef.current }
         const killerPiece = newBoardValues.board.getPieceFromPosition(positionA)
         const deadPiece = newBoardValues.board.getPieceFromPosition(positionB)
 
@@ -477,6 +519,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         newBoardValues.endGame = deadPiece instanceof King
         newBoardValues.iterations++
         blackTurn.current = !blackTurn.current
+        boardValuesRef.current = newBoardValues
         setBoardValues(newBoardValues)
 
         checkPawnSwitch(killerPiece!, positionB)
@@ -617,6 +660,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             })
         }
 
+        boardValuesRef.current = newBoardValues
         setBoardValues(newBoardValues)
     }
 
@@ -637,7 +681,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
 
     function pawnSwitchPiece(piece: Piece, position: BoardPosition) {
         setOpenDialog({ open: false, isBlack: null, position: null })
-        var newBoardValues = { ...boardValues }
+        var newBoardValues = { ...boardValuesRef.current }
 
         const pieceOnPosition =
             newBoardValues.board.getPieceFromPosition(position)
@@ -651,12 +695,13 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             newBoardValues.board.addPieceToPosition(piece, position)
             newBoardValues.check = getCheck(newBoardValues.board)
             newBoardValues.iterations++
+            boardValuesRef.current = newBoardValues
             setBoardValues(newBoardValues)
         }
     }
 
     function handleSelected(position: BoardPosition) {
-        const newBoardValues = { ...boardValues }
+        const newBoardValues = { ...boardValuesRef.current }
         const board: Board = newBoardValues.board
         const selectedPiece = board.getPieceFromPosition(
             newBoardValues.selected,
@@ -672,6 +717,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
                     newBoardValues.movements = moves[0]
                     newBoardValues.killMovements = moves[1]
                     newBoardValues.iterations++
+                    boardValuesRef.current = newBoardValues
                     setBoardValues(newBoardValues)
                     return
                 }
@@ -715,6 +761,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
                         }
                     })
                     newBoardValues.iterations++
+                    boardValuesRef.current = newBoardValues
                     setBoardValues(newBoardValues)
                     return
                 } else {
@@ -729,9 +776,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
                         if (multiplayer) {
                             postMovement({
                                 type: MovementType.Kill,
-                                from: `${newBoardValues.selected!.column}${
-                                    newBoardValues.selected!.row
-                                }`,
+                                from: `${newBoardValues.selected!.column}${newBoardValues.selected!.row}`,
                                 to: `${position!.column}${position!.row}`,
                             })
                         } else killMove(newBoardValues.selected!, position)
@@ -750,7 +795,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
     function resetBoard() {
         setEndDialog(false)
         setOpenDialog({ open: false, isBlack: null, position: null })
-        var newBoardValues = { ...boardValues }
+        var newBoardValues = { ...boardValuesRef.current }
         newBoardValues.board = createNewBoard()
         newBoardValues.selected = null
         newBoardValues.movements = []
@@ -760,15 +805,17 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         newBoardValues.endGame = false
         newBoardValues.iterations++
 
-        blackTurn.current = !blackTurn.current
+        blackTurn.current = false 
 
         if(multiplayer) {
             resetMovements(() => {
                 movements.current = []
+                boardValuesRef.current = newBoardValues
                 setBoardValues(newBoardValues)
             })
         } else {
             movements.current = []
+            boardValuesRef.current = newBoardValues
             setBoardValues(newBoardValues)
 
         }
@@ -776,8 +823,6 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
 
     function handleMultiplayerMovement(eventMovements: BoardMovement[]) {
         try {
-            console.table(eventMovements)
-
             if (eventMovements.length === 0) {
                 resetBoard()
                 return
@@ -830,13 +875,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
                         pawnSwitchPiece(new Queen(!blackTurn.current), positionA)
                         break
                 }
-
                 movements.current = eventMovements
-
             })
-
-
-
         } catch {
             console.log("Catch error on SSE")
         }
@@ -844,7 +884,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
 
 
     function renderRow(rowNumber: number) {
-        var newBoardValues = { ...boardValues }
+        var newBoardValues = { ...boardValuesRef.current }
         return (
             <div className="boardRowFlex" style={{ display: "flex" }}>
                 <div
@@ -878,23 +918,9 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
     const rowNumbers = [8, 7, 6, 5, 4, 3, 2, 1]
 
     return (
-        <div
-            style={{
-                display: "inline-block",
-                width: "100%",
-                maxWidth: 1000,
-                justifyContent: "center",
-                alignItems: "center",
-                marginLeft: "50%",
-                transform: "translate(-50%,0%)",
-            }}
-        >
-            <StatusTab
-                isBlack={blackTurn.current}
-                status={boardValues.check ? Status.CHECK : Status.TURN}
-                restart={() => resetBoard()}
-            />
-            <div className="board" style={styles.board}>
+        <BoardWrapper>
+            <TurnBarBlack />
+            <Board>
                 {renderRow(rowNumbers[0])}
                 {renderRow(rowNumbers[1])}
                 {renderRow(rowNumbers[2])}
@@ -903,10 +929,14 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
                 {renderRow(rowNumbers[5])}
                 {renderRow(rowNumbers[6])}
                 {renderRow(rowNumbers[7])}
-            </div>
-            <div style={styles.cemetery}>
-                <Cemetery cemetery={boardValues.cemetery} />
-            </div>
+            </Board>
+            <TurnBarWhite />
+            <Cemetery cemetery={boardValues.cemetery} />
+            <StatusTab
+                isBlack={blackTurn.current}
+                status={boardValues.check ? Status.CHECK : Status.TURN}
+                restart={() => resetBoard()}
+            />
             <PawnSwitchDialog
                 open={openDialog}
                 handleClose={(piece, position) =>
@@ -919,20 +949,24 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
                 </div>
                 <Button onClick={() => resetBoard()}>Restart</Button>
             </Dialog>
-            <Dialog 
-            style={{ padding: 20 }}
-            open={multiplayerDialog}
+            <MultiplayerDialog 
+                open={multiplayerDialog}
+                fullWidth={true}
             >
-                <Button onClick={() => {
+                <MultiplayerButton onClick={() => {
                     setMultiplayer(false)
                     setMultiplayerDialog(false)
-                }}>Single Player</Button>
-                <Button onClick={()=>{
+                }}>
+                    Single Player
+                </MultiplayerButton>
+                <MultiplayerButton onClick={()=>{
                     setMultiplayer(true)
                     setMultiplayerDialog(false)
-                }}>Multiplayer</Button>
-            </Dialog>
-        </div>
+                }}>
+                    Multiplayer
+                </MultiplayerButton>
+            </MultiplayerDialog>
+        </BoardWrapper>
     )
 }
 //<GoogleLoginDialog open={true}/>

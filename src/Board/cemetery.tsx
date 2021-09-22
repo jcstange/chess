@@ -1,4 +1,5 @@
 import React from "react"
+import styled from "styled-components"
 import { Colors } from "../Constants/colors"
 import { Piece } from "../Pieces/pieces"
 
@@ -7,6 +8,12 @@ type CemeteryProps = {
 }
 
 export const Cemetery: React.FC<CemeteryProps> = ({ cemetery }) => {
+    const CemeteryWrapper = styled.div`
+       padding: 20px; 
+    `
+    const FlexContainer = styled.div`
+       display: flex; 
+    `
     function makeList() {
         return cemetery.map((i) => {
             if(i===null) return <div></div>
@@ -33,5 +40,7 @@ export const Cemetery: React.FC<CemeteryProps> = ({ cemetery }) => {
             )
         })
     }
-    return <div style={{ display: "flex" }}>{makeList()}</div>
+    return <CemeteryWrapper>
+            <FlexContainer>{makeList()}</FlexContainer>
+        </CemeteryWrapper>
 }
