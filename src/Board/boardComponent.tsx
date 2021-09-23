@@ -135,7 +135,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         if (boardValuesRef.current.endGame) {
             setEndDialog(true)
         }
-        if (!sseStarted) {
+        if (!sseStarted && multiplayer) {
             startEventSource((data: number) => {
                 updateMovement(data)
             } )
