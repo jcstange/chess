@@ -94,6 +94,12 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         opacity: ${blackTurn.current ? 1 : 0};
     `
 
+    const GameSelectionDialog = styled(Dialog)`
+        width: 100%; 
+        padding: 20px;
+        margin: 20px;
+    `
+
     const MultiplayerDialog = styled(Dialog)`
         width: 100%; 
         padding: 20px;
@@ -120,7 +126,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
     })
     const boardValuesRef = useRef<BoardValues>(boardValues)
     const [multiplayer, setMultiplayer] = useState<boolean>(false)
-    const [multiplayerDialog, setMultiplayerDialog] = useState<boolean>(boardValues.iterations === 0)
+    const [gameSelectionDialog, setGameSelectionDialog] = useState<boolean>(boardValues.iterations === 0)
+    const [multiplayerDialog, setMultiplayerDialog] = useState<boolean>(false)
     const [openDialog, setOpenDialog] = useState<IPawnSwitch>({
         open: false,
         isBlack: null,
@@ -916,23 +923,35 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
                 </div>
                 <Button onClick={() => resetBoard()}>Restart</Button>
             </Dialog>
-            <MultiplayerDialog 
-                open={multiplayerDialog}
+            <GameSelectionDialog 
+                open={gameSelectionDialog}
                 fullWidth={true}
-            >
+                >
                 <MultiplayerButton onClick={() => {
                     setMultiplayer(false)
-                    setMultiplayerDialog(false)
+                    setGameSelectionDialog(false)
+                    setMultiplayerDialog(true)
                 }}>
                     Single Player
                 </MultiplayerButton>
                 <MultiplayerButton onClick={()=>{
                     setMultiplayer(true)
-                    setMultiplayerDialog(false)
+                    setGameSelectionDialog(false)
                 }}>
                     Multiplayer
                 </MultiplayerButton>
+            </GameSelectionDialog>
+            <MultiplayerDialog
+                open={multiplayerDialog}
+            >
+                <h1>Information on how to play multiplayer</h1>
+                <CodeGenerator />
+
+                <h1>If you wanna join a game</h1>
+                <input type="text"></input>
+
             </MultiplayerDialog>
+            
         </BoardWrapper>
     )
 }
