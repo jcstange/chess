@@ -35,6 +35,9 @@ import {
     resetMovements 
 } from '../Repositories/movementRepository'
 import styled from 'styled-components'
+import { CodeGenerator } from "../stories/CodeGenerator"
+import { TurnBarWhite, TurnBarBlack } from "../stories/TurnBar"
+import { SelectButton } from "../stories/SelectButton"
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
@@ -76,28 +79,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         transform: translate(-50%,0%);
     `
 
-    const TurnBar = styled.div`
-        width: 100%;
-        height: 5px;
-        margin-top: 5px;
-        margin-bottom: 5px;
-        border-radius: 5px;
-        filter: drop-shadow(2px 2px 4px ${Colors.shadow_gray});
-        background-color: yellow;
-        transition: opacity 3s;
-    `
-
-    const TurnBarWhite = styled(TurnBar)`
-        opacity: ${blackTurn.current ? 0 : 1};
-    `
-    const TurnBarBlack = styled(TurnBar)`
-        opacity: ${blackTurn.current ? 1 : 0};
-    `
-
     const GameSelectionDialog = styled(Dialog)`
-        width: 100%; 
-        padding: 20px;
-        margin: 20px;
+        display: inline;
     `
 
     const MultiplayerDialog = styled(Dialog)`
@@ -105,13 +88,17 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         padding: 20px;
         margin: 20px;
     `
-    const MultiplayerButton = styled(Button)`
-        width: 100%; 
-        padding: 20px;
-        margin: 20px;
-        background-color: ${Colors.move_blue};
-        border-radius: 5px;
-        filter: drop-shadow(2px 2px 4px ${Colors.shadow_gray});
+    const FlexDiv = styled.div`
+        display: flex;
+    `
+
+    const RowNumber = styled.div<{rowNumber: number}>`
+        display: flex;
+        width: 8%;
+        justify-content: center;
+        align-self: center;
+        padding-top: ${p => p.rowNumber === 8 ? 50 : 0}px;
+        filter: drop-shadow(2px,2px,2px, ${Colors.shadow_gray});
     `
 
     const [boardValues, setBoardValues] = useState<BoardValues>({
@@ -860,20 +847,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
     function renderRow(rowNumber: number) {
         var newBoardValues = { ...boardValuesRef.current }
         return (
-            <div className="boardRowFlex" style={{ display: "flex" }}>
-                <div
-                    className="boardRowNumber"
-                    style={{
-                        display: "flex",
-                        width: "8%",
-                        justifyContent: "center",
-                        alignSelf: "center",
-                        paddingTop: rowNumber === 8 ? 50 : 0,
-                        filter: `drop-shadow(2px,2px,2px, ${Colors.shadow_gray})`,
-                    }}
-                >
-                    {rowNumber}
-                </div>
+            <FlexDiv>
+                <RowNumber rowNumber={rowNumber}>{rowNumber}</RowNumber>
                 <BoardRow
                     rowNumber={rowNumber}
                     pieces={newBoardValues.board[rowNumber - 1]}
@@ -885,7 +860,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
                         handleSelected(boardPosition)
                     }
                 />
-            </div>
+            </FlexDiv>
         )
     }
 
@@ -893,7 +868,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
 
     return (
         <BoardWrapper>
-            <TurnBarBlack />
+            <TurnBarBlack blackTurn={blackTurn.current} />
             <Board>
                 {renderRow(rowNumbers[0])}
                 {renderRow(rowNumbers[1])}
@@ -904,7 +879,7 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
                 {renderRow(rowNumbers[6])}
                 {renderRow(rowNumbers[7])}
             </Board>
-            <TurnBarWhite />
+            <TurnBarWhite blackTurn={blackTurn.current} />
             <Cemetery cemetery={boardValues.cemetery} />
             <StatusTab
                 isBlack={blackTurn.current}
@@ -925,31 +900,35 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             </Dialog>
             <GameSelectionDialog 
                 open={gameSelectionDialog}
-                fullWidth={true}
                 >
-                <MultiplayerButton onClick={() => {
-                    setMultiplayer(false)
-                    setGameSelectionDialog(false)
-                    setMultiplayerDialog(true)
-                }}>
-                    Single Player
-                </MultiplayerButton>
-                <MultiplayerButton onClick={()=>{
-                    setMultiplayer(true)
-                    setGameSelectionDialog(false)
-                }}>
-                    Multiplayer
-                </MultiplayerButton>
+                <div style={{display: "inline", padding: 20}}>
+                    <SelectButton onClick={() => {
+                        setMultiplayer(false)
+                        setGameSelectionDialog(false)
+                    }}>
+                        Single Player
+                    </SelectButton>
+                    <SelectButton onClick={()=>{
+                        setMultiplayer(true)
+                        setGameSelectionDialog(false)
+                        setMultiplayerDialog(true)
+                    }}>
+                        Multiplayer
+                    </SelectButton>
+                </div>    
             </GameSelectionDialog>
             <MultiplayerDialog
                 open={multiplayerDialog}
             >
-                <h1>Information on how to play multiplayer</h1>
-                <CodeGenerator />
-
-                <h1>If you wanna join a game</h1>
-                <input type="text"></input>
-
+                <div style= {{padding:20}}>
+                    <p>Information on how to play multiplayer</p>
+                    <CodeGenerator />
+                    <p>If you wanna join a game type the game code</p>
+                    <input type="text"></input>
+                    <SelectButton onClick={()=>{
+                        setMultiplayerDialog(false)
+                    }}>Ok</SelectButton>
+                </div>
             </MultiplayerDialog>
             
         </BoardWrapper>

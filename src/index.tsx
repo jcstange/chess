@@ -1,7 +1,7 @@
 import React from "react"
 import ReactDOM from "react-dom"
 import styled from "styled-components"
-import { BoardComponent } from "./Board/boardComponent"
+import { BoardComponent } from "./Board/board_component"
 import { startBoard } from "./Board/utils"
 import { Colors } from './Constants/colors' 
 

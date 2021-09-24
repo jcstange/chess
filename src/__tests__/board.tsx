@@ -1,5 +1,5 @@
 import { render, cleanup, waitFor, fireEvent } from "@testing-library/react"
-import { BoardComponent } from "../Board/boardComponent"
+import { BoardComponent } from "../Board/board_component"
 import { Board } from "../board"
 import { startBoard, BoardValues, createBoardPosition } from "../Board/utils"
 import "@testing-library/jest-dom"
