@@ -1,6 +1,6 @@
 import React, { useState } from "react"
-import { Piece, Rook, Knight, Bishop, Queen } from "../Pieces/pieces"
-import { Colors } from "../Constants/colors"
+import { Piece, Rook, Knight, Bishop, Queen } from "../../Pieces/pieces"
+import { Colors } from "../../Constants/colors"
 
 type PawnSwitchProps = {
     isBlack: boolean
@@ -40,7 +40,7 @@ export const PawnSwitch: React.FC<PawnSwitchProps> = ({
             new Queen(isBlack),
         ]
         return pieces.map((i) => {
-            var image = require("../Images/" + i.image)
+            var image = require("../assets/" + i.image)
             return (
                 <div
                     onClick={() => selectPiece(i)}

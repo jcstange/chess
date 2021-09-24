@@ -1,7 +1,7 @@
 import React, { useState } from "react"
 import { Dialog, Button } from "@mui/material"
 import { PawnSwitch } from "./pawnSwitch"
-import { Piece } from "../Pieces/pieces"
+import { Piece } from "../../Pieces/pieces"
 
 type PawnSwitchDialogProps = {
     open: IPawnSwitch

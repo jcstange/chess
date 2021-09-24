@@ -1,11 +1,10 @@
 
-import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import { TurnBarWhite } from './TurnBar';
+import { TurnBarWhite } from './Components/TurnBar';
 
 export default {
-  title: 'Turn Bar',
+  title: 'Components/Turn Bar',
   component: TurnBarWhite,
   args: {
       blackTurn: false

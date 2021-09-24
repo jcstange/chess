@@ -17,7 +17,7 @@ export const Cemetery: React.FC<CemeteryProps> = ({ cemetery }) => {
     function makeList() {
         return cemetery.map((i) => {
             if(i===null) return <div></div>
-            var image = require("../Images/" + i.image)
+            var image = require("../stories/assets/" + i.image)
             return (
                 <div
                     style={{

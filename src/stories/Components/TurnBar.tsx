@@ -1,5 +1,5 @@
 import styled from 'styled-components'
-import { Colors } from '../Constants/colors'
+import { Colors } from '../../Constants/colors'
 
 const TurnBar = styled.div`
     width: 100%;

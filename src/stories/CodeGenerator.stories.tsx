@@ -2,10 +2,10 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import { CodeGenerator } from './CodeGenerator';
+import { CodeGenerator } from './Components/CodeGenerator';
 
 export default {
-  title: 'CodeGenerator',
+  title: 'Components/CodeGenerator',
   component: CodeGenerator,
 } as ComponentMeta<typeof CodeGenerator>;
 

@@ -22,11 +22,11 @@ import {
     getColumnNumber,
 } from "./utils"
 import { BoardValues } from "./utils"
-import { PawnSwitchDialog } from "../Dialogs/pawnSwitchDialog"
+import { PawnSwitchDialog } from "../stories/Dialogs/pawnSwitchDialog"
 import { Dialog, Button } from "@mui/material"
 import useIsMax from "../windowDimension"
 import "@fontsource/roboto"
-import texture from "../Images/darkTexture.jpeg"
+import texture from "../stories/assets/darkTexture.jpeg"
 //import { GoogleLoginDialog } from "../Dialogs/googleLogin"
 import { 
     getMovements, 
@@ -35,9 +35,11 @@ import {
     resetMovements 
 } from '../Repositories/movementRepository'
 import styled from 'styled-components'
-import { CodeGenerator } from "../stories/CodeGenerator"
-import { TurnBarWhite, TurnBarBlack } from "../stories/TurnBar"
-import { SelectButton } from "../stories/SelectButton"
+import { CodeGenerator } from "../stories/Components/CodeGenerator"
+import { TurnBarWhite, TurnBarBlack } from "../stories/Components/TurnBar"
+import { SelectButton } from "../stories/Buttons/SelectButton"
+import { MultiplayerDialog } from "../stories/Dialogs/MultiplayerDialog"
+import { GameSelectionDialog } from '../stories/Dialogs/GameSelectionDialog'
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
@@ -79,15 +81,6 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         transform: translate(-50%,0%);
     `
 
-    const GameSelectionDialog = styled(Dialog)`
-        display: inline;
-    `
-
-    const MultiplayerDialog = styled(Dialog)`
-        width: 100%; 
-        padding: 20px;
-        margin: 20px;
-    `
     const FlexDiv = styled.div`
         display: flex;
     `
@@ -900,37 +893,20 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             </Dialog>
             <GameSelectionDialog 
                 open={gameSelectionDialog}
-                >
-                <div style={{display: "inline", padding: 20}}>
-                    <SelectButton onClick={() => {
-                        setMultiplayer(false)
-                        setGameSelectionDialog(false)
-                    }}>
-                        Single Player
-                    </SelectButton>
-                    <SelectButton onClick={()=>{
-                        setMultiplayer(true)
-                        setGameSelectionDialog(false)
-                        setMultiplayerDialog(true)
-                    }}>
-                        Multiplayer
-                    </SelectButton>
-                </div>    
-            </GameSelectionDialog>
+                singlePlayerClick={() => {
+                    setMultiplayer(false)
+                    setGameSelectionDialog(false)
+                }}
+                multiPlayerClick={() => {
+                    setMultiplayer(true)
+                    setGameSelectionDialog(false)
+                    setMultiplayerDialog(true)
+                }}
+            />
             <MultiplayerDialog
                 open={multiplayerDialog}
-            >
-                <div style= {{padding:20}}>
-                    <p>Information on how to play multiplayer</p>
-                    <CodeGenerator />
-                    <p>If you wanna join a game type the game code</p>
-                    <input type="text"></input>
-                    <SelectButton onClick={()=>{
-                        setMultiplayerDialog(false)
-                    }}>Ok</SelectButton>
-                </div>
-            </MultiplayerDialog>
-            
+                buttonClick={()=>setMultiplayerDialog(false)}
+            />
         </BoardWrapper>
     )
 }

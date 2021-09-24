@@ -1,8 +1,8 @@
 import React from "react"
 import { Piece } from "../Pieces/pieces"
 import { Colors } from "../Constants/colors"
-import lightTexture from "../Images/lightTexture.jpeg"
-import darkTexture from "../Images/darkTexture.jpeg"
+import lightTexture from "../stories/assets/lightTexture.jpeg"
+import darkTexture from "../stories/assets/darkTexture.jpeg"
 
 type SquareProps = {
     position: BoardPosition
@@ -55,7 +55,7 @@ export const Square: React.FC<SquareProps> = ({
         if (src === null || src === undefined)
             return <div className="emptySquare"></div>
         if (src.length > 2) {
-            var image = require("../Images/" + src)
+            var image = require("../stories/assets/" + src)
             return (
                 <img
                     style={{

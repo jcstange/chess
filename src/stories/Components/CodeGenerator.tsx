@@ -1,12 +1,11 @@
 import React from 'react'
 import styled from 'styled-components'
-import { Colors } from '../Constants/colors'
+import { Colors } from '../../Constants/colors'
 import '@fontsource/roboto'
 
 export const CodeGenerator : React.FC = () => {
 
     const CodeGeneratorField = styled.div`
-        display: inline;
         padding-top: 16px;
         padding-bottom: 16px;
         padding-left: 26px;
@@ -14,7 +13,6 @@ export const CodeGenerator : React.FC = () => {
         border-style: solid;
         border-radius: 5px;
         border-width: 1px;
-        border-color: black;
         margin-top: 20px;
         margin-bottom: 20px;
         font-family: "Roboto";

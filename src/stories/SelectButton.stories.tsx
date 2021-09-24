@@ -1,10 +1,10 @@
 import React from 'react';
 import { ComponentStory, ComponentMeta } from '@storybook/react';
 
-import { SelectButton } from './SelectButton';
+import { SelectButton } from './Buttons/SelectButton';
 
 export default {
-  title: 'Select Button',
+  title: 'Buttons/Select Button',
   component: SelectButton,
   args: {}
 } as ComponentMeta<typeof SelectButton>;
