@@ -8,7 +8,9 @@ export default {
   title: 'Dialogs/GameSelectionDialog',
   component: GameSelectionDialog,
   args: {
-      open: true 
+      open: true,
+      textOne: "Single Player",
+      textTwo: "Multi Player",
   },
 } as ComponentMeta<typeof GameSelectionDialog>;
 

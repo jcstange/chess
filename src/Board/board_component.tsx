@@ -35,11 +35,10 @@ import {
     resetMovements 
 } from '../Repositories/movementRepository'
 import styled from 'styled-components'
-import { CodeGenerator } from "../stories/Components/CodeGenerator"
 import { TurnBarWhite, TurnBarBlack } from "../stories/Components/TurnBar"
-import { SelectButton } from "../stories/Buttons/SelectButton"
-import { MultiplayerDialog } from "../stories/Dialogs/MultiplayerDialog"
+import { JoinGameDialog } from "../stories/Dialogs/JoinGameDialog"
 import { GameSelectionDialog } from '../stories/Dialogs/GameSelectionDialog'
+import { CreateGameDialog } from "../stories/Dialogs/CreateGameDialog"
 /* The board has to have 64 piece in a square 8x8 */
 
 type BoardComponentProps = {
@@ -108,6 +107,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
     const [multiplayer, setMultiplayer] = useState<boolean>(false)
     const [gameSelectionDialog, setGameSelectionDialog] = useState<boolean>(boardValues.iterations === 0)
     const [multiplayerDialog, setMultiplayerDialog] = useState<boolean>(false)
+    const [createGameDialog, setCreateGameDialog] = useState<boolean>(false)
+    const [joinGameDialog, setJoinGameDialog] = useState<boolean>(false)
     const [openDialog, setOpenDialog] = useState<IPawnSwitch>({
         open: false,
         isBlack: null,
@@ -744,8 +745,6 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
         }
     }
 
-    //end Mechanics
-
     function resetBoard() {
         setEndDialog(false)
         setOpenDialog({ open: false, isBlack: null, position: null })
@@ -774,6 +773,8 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
 
         }
     }
+
+    //end Mechanics
 
     function handleMultiplayerMovement(eventMovements: BoardMovement[]) {
         try {
@@ -893,19 +894,50 @@ export const BoardComponent: React.FC<BoardComponentProps> = ({
             </Dialog>
             <GameSelectionDialog 
                 open={gameSelectionDialog}
-                singlePlayerClick={() => {
+                textOne="Single Player"
+                textTwo="Multi Player"
+                clickOne={() => {
                     setMultiplayer(false)
                     setGameSelectionDialog(false)
                 }}
-                multiPlayerClick={() => {
+                clickTwo={() => {
                     setMultiplayer(true)
                     setGameSelectionDialog(false)
                     setMultiplayerDialog(true)
                 }}
             />
-            <MultiplayerDialog
+            <GameSelectionDialog 
                 open={multiplayerDialog}
-                buttonClick={()=>setMultiplayerDialog(false)}
+                textOne="Create Game"
+                textTwo="Join Game"
+                clickOne={() => {
+                    setMultiplayerDialog(false)
+                    setCreateGameDialog(true)
+                }}
+                clickTwo={() => {
+                    setJoinGameDialog(true)
+                    setMultiplayerDialog(false)
+                }}
+            />
+            <CreateGameDialog
+                open={createGameDialog}
+                buttonClick={()=>{ 
+                    setCreateGameDialog(false)
+                }}
+                backClick={()=>{ 
+                    setCreateGameDialog(false)
+                    setMultiplayerDialog(true)
+                }}
+            />
+            <JoinGameDialog
+                open={joinGameDialog}
+                buttonClick={()=>{ 
+                    setJoinGameDialog(false)
+                }}
+                backClick={()=>{ 
+                    setJoinGameDialog(false)
+                    setMultiplayerDialog(true)
+                }}
             />
         </BoardWrapper>
     )

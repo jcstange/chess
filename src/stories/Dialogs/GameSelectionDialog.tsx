@@ -6,14 +6,18 @@ import { Slide } from '@mui/material'
 
 type GameSelectionDialogProps = {
     open: boolean
-    singlePlayerClick: () => void
-    multiPlayerClick: () => void
+    textOne: string,
+    textTwo: string,
+    clickOne: () => void
+    clickTwo: () => void
 }
 
 export const GameSelectionDialog: React.FC<GameSelectionDialogProps> = ({
     open,
-    singlePlayerClick,
-    multiPlayerClick
+    textOne,
+    textTwo,
+    clickOne,
+    clickTwo
 }) => {
     const GameSelectionDialog = styled(Dialog)`
         display: inline;
@@ -40,14 +44,14 @@ export const GameSelectionDialog: React.FC<GameSelectionDialogProps> = ({
         >
         <InlineWrapper>
             <SelectButton onClick={() => {
-                singlePlayerClick()
+                clickOne()
             }}>
-                Single Player
+                {textOne} 
             </SelectButton>
             <SelectButton onClick={()=>{
-                multiPlayerClick()
+                clickTwo()
             }}>
-                Multiplayer
+                {textTwo}
             </SelectButton>
         </InlineWrapper>    
     </GameSelectionDialog>
