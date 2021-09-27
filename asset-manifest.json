@@ -1,0 +1,37 @@
+{
+  "files": {
+    "main.js": "/chess/static/js/main.ff182e4f.chunk.js",
+    "main.js.map": "/chess/static/js/main.ff182e4f.chunk.js.map",
+    "runtime-main.js": "/chess/static/js/runtime-main.5edfba82.js",
+    "runtime-main.js.map": "/chess/static/js/runtime-main.5edfba82.js.map",
+    "static/css/2.dfa9d29d.chunk.css": "/chess/static/css/2.dfa9d29d.chunk.css",
+    "static/js/2.58bc83e6.chunk.js": "/chess/static/js/2.58bc83e6.chunk.js",
+    "static/js/2.58bc83e6.chunk.js.map": "/chess/static/js/2.58bc83e6.chunk.js.map",
+    "index.html": "/chess/index.html",
+    "static/css/2.dfa9d29d.chunk.css.map": "/chess/static/css/2.dfa9d29d.chunk.css.map",
+    "static/js/2.58bc83e6.chunk.js.LICENSE.txt": "/chess/static/js/2.58bc83e6.chunk.js.LICENSE.txt",
+    "static/media/bishop.svg": "/chess/static/media/bishop.6727dca6.svg",
+    "static/media/chess.png": "/chess/static/media/chess.a5211027.png",
+    "static/media/code-brackets.svg": "/chess/static/media/code-brackets.2e1112d7.svg",
+    "static/media/colors.svg": "/chess/static/media/colors.a4bd0486.svg",
+    "static/media/comments.svg": "/chess/static/media/comments.a3859089.svg",
+    "static/media/direction.svg": "/chess/static/media/direction.b770f9af.svg",
+    "static/media/flow.svg": "/chess/static/media/flow.edad2ac1.svg",
+    "static/media/king.svg": "/chess/static/media/king.224e4ea9.svg",
+    "static/media/knight.svg": "/chess/static/media/knight.523bf944.svg",
+    "static/media/lightTexture.jpeg": "/chess/static/media/lightTexture.d3029ca6.jpeg",
+    "static/media/pawn.svg": "/chess/static/media/pawn.cadce3db.svg",
+    "static/media/plugin.svg": "/chess/static/media/plugin.d494b228.svg",
+    "static/media/queen.svg": "/chess/static/media/queen.c8b6f32b.svg",
+    "static/media/repo.svg": "/chess/static/media/repo.6d496322.svg",
+    "static/media/index.css": "/chess/static/media/roboto-vietnamese-400-normal.c0bec65d.woff2",
+    "static/media/rook.svg": "/chess/static/media/rook.36330e5b.svg",
+    "static/media/stackalt.svg": "/chess/static/media/stackalt.dba9fbb3.svg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.5edfba82.js",
+    "static/css/2.dfa9d29d.chunk.css",
+    "static/js/2.58bc83e6.chunk.js",
+    "static/js/main.ff182e4f.chunk.js"
+  ]
+}
