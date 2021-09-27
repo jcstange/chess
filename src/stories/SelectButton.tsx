@@ -1,5 +1,5 @@
-import styled from 'styled-components'
-import { Colors } from '../Constants/colors'
+import styled from "styled-components"
+import { Colors } from "../Constants/colors"
 
 export const SelectButton = styled.div`
     padding: 20px;
@@ -13,7 +13,8 @@ export const SelectButton = styled.div`
     border-radius: 32px;
     filter: drop-shadow(2px 2px 4px ${Colors.shadow_gray});
     transition: 500ms linear;
-    &:hover{
+    &:hover {
         background-color: ${Colors.shadow_gray};
         transition: 500ms linear;
-    } `
+    }
+`

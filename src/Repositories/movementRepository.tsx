@@ -1,4 +1,3 @@
-
 import axios from "axios"
 import * as dotenv from "dotenv"
 
@@ -7,7 +6,9 @@ dotenv.config({ path: "../.env" })
 const host = "https://chess001.herokuapp.com"
 
 //const getMovements = () => axios.get(`${process.env.BASE_URL}/movements`)
-export function getMovements(onSuccess: (newMovements: BoardMovement[])=>void) {
+export function getMovements(
+    onSuccess: (newMovements: BoardMovement[]) => void,
+) {
     axios
         .get(`${host}/movements`)
         .then((response) => {
@@ -18,10 +19,9 @@ export function getMovements(onSuccess: (newMovements: BoardMovement[])=>void) {
         .catch((error) => {
             console.error("Error fetching movements", error)
         })
-
 }
 
-export function postMovement(movement: BoardMovement){
+export function postMovement(movement: BoardMovement) {
     axios
         .post(`${host}/movements`, movement)
         .then((response) => {
@@ -30,7 +30,6 @@ export function postMovement(movement: BoardMovement){
         .catch((error) => {
             console.error(error)
         })
-
 }
 
 export function resetMovements(onSuccess: () => void) {

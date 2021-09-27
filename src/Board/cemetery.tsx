@@ -9,14 +9,14 @@ type CemeteryProps = {
 
 export const Cemetery: React.FC<CemeteryProps> = ({ cemetery }) => {
     const CemeteryWrapper = styled.div`
-       padding: 20px; 
+        padding: 20px;
     `
     const FlexContainer = styled.div`
-       display: flex; 
+        display: flex;
     `
     function makeList() {
         return cemetery.map((i) => {
-            if(i===null) return <div></div>
+            if (i === null) return <div></div>
             var image = require("../stories/assets/" + i.image)
             return (
                 <div
@@ -40,7 +40,9 @@ export const Cemetery: React.FC<CemeteryProps> = ({ cemetery }) => {
             )
         })
     }
-    return <CemeteryWrapper>
+    return (
+        <CemeteryWrapper>
             <FlexContainer>{makeList()}</FlexContainer>
         </CemeteryWrapper>
+    )
 }

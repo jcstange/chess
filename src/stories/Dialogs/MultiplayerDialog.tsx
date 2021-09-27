@@ -1,20 +1,18 @@
 import React from "react"
+import { CodeGenerator } from "../Components/CodeGenerator"
 import { SelectButton } from "../Buttons/SelectButton"
 import styled from "styled-components"
 import { Dialog } from "@material-ui/core"
 import { Slide } from "@mui/material"
-import { Colors } from "../../Constants/colors"
 
-type JoinGameDialogProps = {
+type MultiplayerDialogProps = {
     open: boolean
     buttonClick: () => void
-    backClick: () => void
 }
 
-export const JoinGameDialog: React.FC<JoinGameDialogProps> = ({
+export const MultiplayerDialog: React.FC<MultiplayerDialogProps> = ({
     open,
     buttonClick,
-    backClick,
 }) => {
     const MultiplayerDialog = styled(Dialog)`
         width: 100%;
@@ -23,12 +21,13 @@ export const JoinGameDialog: React.FC<JoinGameDialogProps> = ({
 
     const MultiplayerDialogWrapper = styled.div`
         display: inline;
+        border-radius: 32px;
+        background-color: white;
     `
 
     const DialogContentWrapper = styled.div`
-        display: block;
+        display: flex-inline;
         width: auto;
-        text-align: center;
         z-index: 1px;
         padding-top: 20px;
         margin-left: 20px;
@@ -36,34 +35,32 @@ export const JoinGameDialog: React.FC<JoinGameDialogProps> = ({
         margin-bottom: 20px;
     `
     const Header = styled.div`
-        font-size: 25px;
+        font-size: 16px;
         font-family: "Roboto";
         padding-top: 20px;
         padding-bottom: 20px;
-        text-align: center;
-        color: white;
-        filter: drop-shadow(2px 2px 2px ${Colors.shadow_gray});
+        background-color: aliceblue;
     `
 
     const CodeInput = styled.input`
         padding: 16px;
         font-family: "Roboto";
-        font-size: 35px;
-        border-radius: 5px;
-        border-color: white;
-        background-color: transparent;
-        color: white;
-        filter: drop-shadow(2px 2px 2px ${Colors.shadow_gray});
+        font-size: 20px;
     `
+    const Separator = styled.div`
+        width: 100%;
+        height: 1px;
+        background-color: black;
+    `
+
     const Title = styled.div`
         padding: 20px;
         text-align: center;
         font-family: "Roboto";
-        font-size: 45px;
+        font-size: 30px;
         font-variant: small-caps;
-        color: white;
-        filter: drop-shadow(2px 2px 2px ${Colors.shadow_gray});
     `
+
     return (
         <MultiplayerDialog
             open={open}
@@ -80,27 +77,21 @@ export const JoinGameDialog: React.FC<JoinGameDialogProps> = ({
         >
             <MultiplayerDialogWrapper>
                 <Title>Multiplayer Game</Title>
+                <Separator />
                 <DialogContentWrapper>
-                    <Header>
-                        To join a game, type your friend's code here
-                    </Header>
+                    <Header>Information on how to play multiplayer</Header>
+                    <CodeGenerator />
+                    <Header>If you wanna join a game type the game code</Header>
                     <CodeInput type="text"></CodeInput>
+                    <SelectButton
+                        onClick={() => {
+                            buttonClick()
+                        }}
+                    >
+                        START
+                    </SelectButton>
                 </DialogContentWrapper>
             </MultiplayerDialogWrapper>
-            <SelectButton
-                onClick={() => {
-                    buttonClick()
-                }}
-            >
-                JOIN
-            </SelectButton>
-            <SelectButton
-                onClick={() => {
-                    backClick()
-                }}
-            >
-                BACK
-            </SelectButton>
         </MultiplayerDialog>
     )
 }

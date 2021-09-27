@@ -1,10 +1,9 @@
-import React from 'react'
-import styled from 'styled-components'
-import { Colors } from '../../Constants/colors'
-import '@fontsource/roboto'
+import React from "react"
+import styled from "styled-components"
+import { Colors } from "../../Constants/colors"
+import "@fontsource/roboto"
 
-export const CodeGenerator : React.FC = () => {
-
+export const CodeGenerator: React.FC = () => {
     const CodeGeneratorField = styled.div`
         display: inline-block;
         padding-top: 16px;
@@ -23,11 +22,7 @@ export const CodeGenerator : React.FC = () => {
         color: ${Colors.white};
         filter: drop-shadow(2px 2px 2px ${Colors.shadow_gray});
     `
-    const random = Math.random().toString(16).substring(2,8)
+    const random = Math.random().toString(16).substring(2, 8)
 
-    return (
-        <CodeGeneratorField>
-            {random}
-        </CodeGeneratorField>
-    )
+    return <CodeGeneratorField>{random}</CodeGeneratorField>
 }

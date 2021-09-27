@@ -1,5 +1,5 @@
-import styled from 'styled-components'
-import { Colors } from '../../Constants/colors'
+import styled from "styled-components"
+import { Colors } from "../../Constants/colors"
 
 export const SelectButton = styled.div`
     display: flex;
@@ -15,27 +15,27 @@ export const SelectButton = styled.div`
     border-radius: 50px;
     filter: drop-shadow(2px 2px 4px ${Colors.shadow_gray});
     transition: 500ms linear;
-    &:hover{
+    &:hover {
         background-color: ${Colors.shadow_gray};
         transition: 500ms linear;
     }
-    &:active{
+    &:active {
         background-color: ${Colors.selected_green};
         transition: 200ms linear;
-    } `
+    }
+`
 
 type ImageButtomProps = {
     src: string
     text: string
 }
 
-export const ImageButton: React.FC<ImageButtomProps> = ({src, text}) => {
+export const ImageButton: React.FC<ImageButtomProps> = ({ src, text }) => {
     const getImage = () => {
         var image = require("../assets/" + src)
-        return (<img src={image.default} alt={""}/>)
-
+        return <img src={image.default} alt={""} />
     }
-    return(
+    return (
         <SelectButton>
             {getImage}
             {text}

@@ -1,5 +1,5 @@
-import styled from 'styled-components'
-import { Colors } from '../../Constants/colors'
+import styled from "styled-components"
+import { Colors } from "../../Constants/colors"
 
 const TurnBar = styled.div`
     width: 100%;
@@ -12,9 +12,9 @@ const TurnBar = styled.div`
     transition: opacity 3s;
 `
 
-export const TurnBarWhite = styled(TurnBar)<{ blackTurn: boolean}>`
-    opacity: ${p => p.blackTurn ? 0 : 1};
+export const TurnBarWhite = styled(TurnBar)<{ blackTurn: boolean }>`
+    opacity: ${(p) => (p.blackTurn ? 0 : 1)};
 `
-export const TurnBarBlack = styled(TurnBar)<{ blackTurn: boolean}>`
-    opacity: ${p => p.blackTurn ? 1 : 0};
+export const TurnBarBlack = styled(TurnBar)<{ blackTurn: boolean }>`
+    opacity: ${(p) => (p.blackTurn ? 1 : 0)};
 `

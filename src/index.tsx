@@ -3,10 +3,9 @@ import ReactDOM from "react-dom"
 import styled from "styled-components"
 import { BoardComponent } from "./Board/board_component"
 import { startBoard } from "./Board/utils"
-import { Colors } from './Constants/colors' 
+import { Colors } from "./Constants/colors"
 
 const Game: React.FC = () => {
-
     const Root = styled.div`
         height: 100%;
         width: 94%;
@@ -19,20 +18,23 @@ const Game: React.FC = () => {
     `
 
     function updateBackground(blackTurn: boolean) {
-        document.body.style.background = blackTurn ? Colors.shadow_gray : Colors.white
+        document.body.style.background = blackTurn
+            ? Colors.shadow_gray
+            : Colors.white
         document.body.style.transition = `background-color 1000ms linear`
     }
     return (
         <Root>
             <BoardWrapper>
-                <BoardComponent 
-                startBoard={startBoard} 
-                _blackTurn={(blackTurn: boolean)=>{ updateBackground(blackTurn) }} 
+                <BoardComponent
+                    startBoard={startBoard}
+                    _blackTurn={(blackTurn: boolean) => {
+                        updateBackground(blackTurn)
+                    }}
                 />
             </BoardWrapper>
         </Root>
     )
 }
 
-
-ReactDOM.render(<Game/>, document.getElementById("root"))
+ReactDOM.render(<Game />, document.getElementById("root"))

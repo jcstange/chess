@@ -81,17 +81,6 @@ export function createBoardPosition(
     return { column: boardPosition[0], row: Number(boardPosition[1]) }
 }
 
-export type BoardValues = {
-    board: Board
-    selected: Nullable<BoardPosition>
-    movements: Nullable<BoardPosition>[]
-    killMovements: Nullable<BoardPosition>[]
-    check: Nullable<[BoardPosition, BoardPosition]>
-    cemetery: Piece[]
-    endGame: boolean
-    iterations: number
-}
-
 export function createNewBoard(): Board {
     const _startBoard: Nullable<Piece>[][] = startBoard
         .slice()
